@@ -1,26 +1,190 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --color-green: #E5F902;
+  --color-dun: #CFBFAC;
+  --color-blue: #C7EEFF;
+  --color-pink: #FBE5FC;
+  --color-light-green: #D2FFD2;
+  --color-beige: #FFE5D2;
+  --color-white: #FFFFFF;
+  --color-grey-100: #F1F3F4;
+  --color-grey-500: #BFC9CA;
+  --color-grey-800: #202222;
+  --color-black: #000000;
+  
+  /* Spacing */
+  --spacing-xxs: 0.25rem;    /* 4px */
+  --spacing-xs: 0.5rem;      /* 8px */
+  --spacing-s: 0.75rem;      /* 12px */
+  --spacing-m: 1rem;         /* 16px */
+  --spacing-l: 1.5rem;       /* 24px */
+  --spacing-xl: 2.25rem;     /* 36px */
+  --spacing-xxl: 2.5rem;     /* 40px */
+  --spacing-xxxl: 5rem;      /* 80px */
+  
+  /* Border Radius */
+  --corners-s: 0.5rem;       /* 8px */
+  --corners-l: 1.25rem;      /* 20px */
+  
+  /* Typography */
+  --font-family: 'Manrope', sans-serif;
+  
+  /* Text Styles */
+  --text-h1-size: 3rem;
+  --text-h1-weight: 500;
+  --text-h1-spacing: -0.05em;
+  
+  --text-h2-size: 2.25rem;
+  --text-h2-weight: 500;
+  --text-h2-spacing: -0.04em;
+  
+  --text-h3-size: 1.5rem;
+  --text-h3-weight: 600;
+  --text-h3-spacing: -0.04em;
+  
+  --text-paragraph-size: 1.5rem;
+  --text-paragraph-weight: 500;
+  --text-paragraph-spacing: -0.04em;
+  
+  --text-body1-size: 1.125rem;
+  --text-body1-weight: 500;
+  --text-body1-spacing: -0.04em;
+  
+  --text-tag-link-size: 1.125rem;
+  --text-tag-link-weight: 500;
+  --text-tag-link-spacing: -0.04em;
+  
+  --text-tag-size: 1rem;
+  --text-tag-weight: 500;
+  --text-tag-spacing: -0.04em;
+  
+  --text-prompt-size: 1rem;
+  --text-prompt-weight: 400;
+  --text-prompt-spacing: -0.04em;
+  
+  --text-button-size: 1.125rem;
+  --text-button-weight: 500;
+  --text-button-spacing: -0.07em;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Base styles */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-family);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--color-black);
+  background: var(--color-white);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Typography utility classes */
+.text-h1 {
+  font-family: var(--font-family);
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  letter-spacing: var(--text-h1-spacing);
+}
+
+.text-h2 {
+  font-family: var(--font-family);
+  font-size: var(--text-h2-size);
+  font-weight: var(--text-h2-weight);
+  letter-spacing: var(--text-h2-spacing);
+}
+
+.text-h3 {
+  font-family: var(--font-family);
+  font-size: var(--text-h3-size);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-spacing);
+}
+
+.text-paragraph {
+  font-family: var(--font-family);
+  font-size: var(--text-paragraph-size);
+  font-weight: var(--text-paragraph-weight);
+  letter-spacing: var(--text-paragraph-spacing);
+}
+
+.text-body1 {
+  font-family: var(--font-family);
+  font-size: var(--text-body1-size);
+  font-weight: var(--text-body1-weight);
+  letter-spacing: var(--text-body1-spacing);
+}
+
+.text-tag-link {
+  font-family: var(--font-family);
+  font-size: var(--text-tag-link-size);
+  font-weight: var(--text-tag-link-weight);
+  letter-spacing: var(--text-tag-link-spacing);
+}
+
+.text-tag {
+  font-family: var(--font-family);
+  font-size: var(--text-tag-size);
+  font-weight: var(--text-tag-weight);
+  letter-spacing: var(--text-tag-spacing);
+}
+
+.text-prompt {
+  font-family: var(--font-family);
+  font-size: var(--text-prompt-size);
+  font-weight: var(--text-prompt-weight);
+  letter-spacing: var(--text-prompt-spacing);
+}
+
+.text-button {
+  font-family: var(--font-family);
+  font-size: var(--text-button-size);
+  font-weight: var(--text-button-weight);
+  letter-spacing: var(--text-button-spacing);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-grey-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-grey-500);
+  border-radius: var(--corners-s);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-grey-800);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background: var(--color-light-green);
+  color: var(--color-black);
 }

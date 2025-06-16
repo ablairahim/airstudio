@@ -1,0 +1,50 @@
+{
+  "projectRules": [
+    {
+      "name": "Expertise",
+      "description": "You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Code Style and Structure",
+      "description": "Write concise, technical TypeScript code with accurate examples. Use functional and declarative patterns; avoid classes. Prefer iteration and modularization over duplication. Use descriptive variable names with auxiliary verbs. Structure files with exported component, subcomponents, helpers, static content, types.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Naming Conventions",
+      "description": "Use lowercase-with-dashes for directories (e.g., components/auth-wizard). Favor named exports for components.",
+      "globs": ["src/**/*"]
+    },
+    {
+      "name": "TypeScript Usage",
+      "description": "Use TypeScript everywhere; prefer interfaces over types. Avoid enums; use maps. Use functional components with TypeScript interfaces.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Syntax and Formatting",
+      "description": "Use the `function` keyword for pure functions. Avoid unnecessary braces in conditionals. Use declarative JSX.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "UI and Styling",
+      "description": "Use Shadcn UI, Radix, and Tailwind. Implement responsive, mobile-first design with Tailwind CSS.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Performance Optimization",
+      "description": "Minimize `use client`, `useEffect`, `setState`; favor React Server Components. Wrap client components in `Suspense` with fallback. Load non-critical components dynamically. Optimize images (WebP, sizes, lazy).",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Key Conventions",
+      "description": "Use `nuqs` for URL search parameter state. Optimize Web Vitals (LCP, CLS, FID). Limit `use client` to small Web-API access components. Follow Next.js docs for data fetching, rendering, routing.",
+      "globs": ["src/**/*.{ts,tsx}"]
+    },
+    {
+      "name": "Personal Website Guidelines",
+      "description": "Comprehensive guidelines for building a modern personal website with Next.js, TypeScript, and best practices for performance and code quality.",
+      "globs": ["src/**/*.{ts,tsx}", "*.{js,ts,json,md}"],
+      "attachments": [".cursor/rules/personal-website.mdc"]
+    }
+  ]
+} 
