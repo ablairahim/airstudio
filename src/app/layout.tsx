@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
-import { Navbar } from '../components/Navbar';
-import { Footer } from '../components/Footer';
+import { ConditionalLayout } from '../components/ConditionalLayout';
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -21,13 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={manrope.variable}>
-      <body className="font-sans antialiased">
-        <Navbar />
-        <main>
+    <html lang="en" className={manrope.variable} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
+        <ConditionalLayout>
           {children}
-        </main>
-        <Footer />
+        </ConditionalLayout>
       </body>
     </html>
   );
