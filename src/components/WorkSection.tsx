@@ -65,6 +65,7 @@ interface CaseStudyPreview {
 export function WorkSection() {
   const [caseStudies, setCaseStudies] = useState<CaseStudyPreview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   const { openCaseModal } = useModal();
 
   console.log('🎯 WorkSection render - loading:', loading, 'caseStudies:', caseStudies.length);
@@ -77,6 +78,16 @@ export function WorkSection() {
     useCdn: false, // Отключаем CDN для получения свежих данных
     perspective: 'previewDrafts', // Получаем черновики
   });
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth > 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   useEffect(() => {
     async function fetchCaseStudies() {
@@ -199,14 +210,12 @@ export function WorkSection() {
         
       } catch (error) {
         console.error('❌ Error fetching case studies:', error);
-        console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
-        
-        // В случае ошибки тоже показываем тестовый кейс
+        // Устанавливаем тестовые данные при ошибке
         const testCaseStudy = {
-          _id: 'test-case',
-          title: 'Test Case Study (Error Fallback)',
-          summary: 'This is a test case study shown due to fetch error',
-          slug: { current: 'test-case' },
+          _id: 'test-case-error',
+          title: 'Test Case Study (Error)',
+          summary: 'This is a test case study - error occurred while fetching from CMS',
+          slug: { current: 'test-case-error' },
           tags: ['ux-ui-design'],
           cover: undefined,
           metrics: [
@@ -215,7 +224,6 @@ export function WorkSection() {
         };
         setCaseStudies([testCaseStudy]);
       } finally {
-        console.log('🏁 Finished fetching, setting loading to false');
         setLoading(false);
       }
     }
@@ -224,8 +232,7 @@ export function WorkSection() {
   }, []);
 
   const handleCaseStudyClick = (caseStudy: CaseStudyPreview) => {
-    console.log('🔗 Clicking case study:', caseStudy.slug.current);
-    // Открываем модал с конкретным кейсом по slug
+    console.log('🎯 Case study clicked:', caseStudy.slug.current);
     openCaseModal(caseStudy.slug.current);
   };
 
@@ -235,18 +242,40 @@ export function WorkSection() {
         id="work"
         style={{
           minHeight: '100vh',
-          padding: `${designTokens.spacing.xxxl} ${designTokens.spacing.xxxl}`,
-          backgroundColor: designTokens.colors.white,
+          padding: '20px',
+          backgroundColor: designTokens.colors.grey100,
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
           justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
-        <div style={{
-          ...designTokens.textStyles.h3,
-          color: designTokens.colors.grey500,
-        }}>
-          Loading case studies...
+        <div 
+          style={{ 
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: designTokens.spacing.l,
+          }}
+        >
+          <h2 
+            style={{
+              ...designTokens.textStyles.h1,
+              color: designTokens.colors.black,
+              textAlign: 'center',
+              margin: 0,
+            }}
+          >
+            Works
+          </h2>
+          <p style={{
+            ...designTokens.textStyles.h3,
+            color: designTokens.colors.grey500,
+            textAlign: 'center',
+          }}>
+            Loading case studies...
+          </p>
         </div>
       </section>
     );
@@ -257,43 +286,43 @@ export function WorkSection() {
       id="work"
       style={{
         minHeight: '100vh',
-        padding: `${designTokens.spacing.xxxl} ${designTokens.spacing.xxxl}`,
-        backgroundColor: designTokens.colors.white,
+        padding: '20px',
+        backgroundColor: designTokens.colors.grey100,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: designTokens.spacing.xxxl }}>
-          <h2 
-            style={{
-              ...designTokens.textStyles.h1,
-              color: designTokens.colors.black,
-              marginBottom: designTokens.spacing.xl,
-            }}
-          >
-            Our Work
-          </h2>
-          
-          <p 
-            style={{
-              ...designTokens.textStyles.paragraph,
-              color: designTokens.colors.grey800,
-              maxWidth: '600px',
-              margin: '0 auto',
-              lineHeight: '1.6',
-            }}
-          >
-            Explore our portfolio of successful projects across various industries and platforms.
-          </p>
-        </div>
+      {/* Wide container */}
+      <div 
+        style={{ 
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: designTokens.spacing.l,
+        }}
+      >
+        <h2 
+          style={{
+            ...designTokens.textStyles.h1,
+            color: designTokens.colors.black,
+            textAlign: 'center',
+            margin: 0,
+          }}
+        >
+          Works
+        </h2>
 
+        {/* Grid of case studies - теперь может быть 2-3 колонки */}
         <div 
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-            gap: designTokens.spacing.xl,
+            gridTemplateColumns: isLargeScreen ? 'repeat(auto-fit, minmax(400px, 1fr))' : '1fr',
+            gap: designTokens.spacing.l,
+            width: '100%',
+            maxWidth: '1400px',
           }}
         >
           {caseStudies.map((caseStudy) => (
@@ -304,21 +333,13 @@ export function WorkSection() {
                 backgroundColor: designTokens.colors.white,
                 borderRadius: designTokens.corners.l,
                 overflow: 'hidden',
-                transition: 'all 0.3s ease',
                 cursor: 'pointer',
                 position: 'relative',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+                width: '100%',
               }}
             >
-              {/* Cover Image - 16:9 aspect ratio */}
+              {/* Cover Image - flexible aspect ratio */}
               <div style={{
                 position: 'relative',
                 aspectRatio: '16 / 9',
@@ -346,8 +367,8 @@ export function WorkSection() {
                   <Image
                     src={caseStudy.cover.asset.url}
                     alt={caseStudy.cover.alt || caseStudy.title}
-                    width={600}
-                    height={338}
+                    width={800}
+                    height={450}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -378,7 +399,7 @@ export function WorkSection() {
                 <h3 style={{
                   ...designTokens.textStyles.h3,
                   color: designTokens.colors.black,
-                  marginBottom: designTokens.spacing.s,
+                  marginBottom: designTokens.spacing.l,
                   lineHeight: '1.2',
                 }}>
                   {caseStudy.title}
@@ -389,7 +410,7 @@ export function WorkSection() {
                   <p style={{
                     ...designTokens.textStyles.body1,
                     color: designTokens.colors.grey800,
-                    marginBottom: designTokens.spacing.m,
+                    marginBottom: designTokens.spacing.l,
                     lineHeight: '1.4',
                   }}>
                     {caseStudy.summary}
@@ -440,7 +461,7 @@ export function WorkSection() {
             <p style={{
               ...designTokens.textStyles.h3,
               color: designTokens.colors.grey500,
-              marginBottom: designTokens.spacing.m,
+              marginBottom: designTokens.spacing.l,
             }}>
               No case studies found
             </p>

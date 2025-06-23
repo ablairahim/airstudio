@@ -387,7 +387,6 @@ export function CaseStudyPage({ caseStudy }: CaseStudyPageProps) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: designTokens.spacing.xs,
-                transition: 'all 0.2s ease',
                 marginBottom: designTokens.spacing.xl,
               }}
             >

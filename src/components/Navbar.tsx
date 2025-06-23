@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { designTokens } from '../lib/design-tokens';
 import { useModal } from '../contexts/ModalContext';
 import { gsap } from 'gsap';
@@ -130,9 +131,21 @@ export function Navbar() {
     }
   }, []);
 
+  // Обработчик клавиши Escape для закрытия модала
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isModalOpen) {
+        toggleModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
+  }, [isModalOpen, toggleModal]);
+
   return (
     <>
-      {/* Основной Navbar - остается неизменным по форме */}
+      {/* Centered Navbar with logo inside */}
       <nav
         style={{
           position: 'fixed',
@@ -140,23 +153,25 @@ export function Navbar() {
           left: 0,
           right: 0,
           width: '100%',
-          padding: `${designTokens.spacing.l} ${designTokens.spacing.xxxl}`,
+          padding: `${designTokens.spacing.l} ${isLargeScreen ? designTokens.spacing.xxxl : designTokens.spacing.xs}`,
           backgroundColor: 'transparent',
           display: 'flex',
           alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          justifyContent: 'center', // Центрируем навбар
           zIndex: 1000,
         }}
       >
         <div
           style={{
-            // Форма навбара НЕ меняется
             backgroundColor: `rgba(191, 201, 202, 0.75)`,
-            borderRadius: designTokens.corners.l,
+            borderRadius: isModalOpen 
+              ? `${designTokens.corners.l} ${designTokens.corners.l} 0 0` 
+              : designTokens.corners.l,
             padding: designTokens.spacing.l,
             backdropFilter: 'blur(20px) saturate(180%)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderBottom: isModalOpen ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             width: isLargeScreen 
               ? 'min(70vw, calc(100vw - 2 * ' + designTokens.spacing.xxxl + '))' 
@@ -168,7 +183,7 @@ export function Navbar() {
           }}
         >
           {!isModalOpen ? (
-            // Обычное состояние - ссылки и кнопка
+            // Обычное состояние - логотип слева, ссылки и кнопка справа
             <div
               style={{
                 display: 'flex',
@@ -180,81 +195,101 @@ export function Navbar() {
                 transition: 'all 0.3s ease',
               }}
             >
-              {/* Navigation links */}
+              {/* AirStudio Logo - left side */}
               <div style={{ 
-                display: 'flex', 
+                display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-evenly',
-                flex: 1,
-                marginRight: designTokens.spacing.l,
+                flex: '0 0 auto',
               }}>
-                {['Approach', 'Work', 'About'].map((label, index) => (
-                  <a
-                    key={label}
-                    href={`#${label.toLowerCase()}`}
-                    style={{
-                      fontFamily: designTokens.textStyles.tagLink.fontFamily,
-                      fontWeight: designTokens.textStyles.tagLink.fontWeight,
-                      fontSize: designTokens.textStyles.tagLink.fontSize,
-                      letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
-                      color: designTokens.colors.black,
-                      paddingInline: designTokens.spacing.l,
-                      paddingBlock: designTokens.spacing.s,
-                      textDecoration: 'none',
-                      borderRadius: designTokens.corners.s,
-                      whiteSpace: 'nowrap',
-                      flex: '0 0 auto',
-                      transition: 'all 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
-                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    }}
-                  >
-                    {label}
-                  </a>
-                ))}
+                <Image 
+                  src="/img/Logo_SVG-Black.svg" 
+                  alt="AirStudio Logo" 
+                  width={134} 
+                  height={29}
+                  priority
+                />
               </div>
 
-              <button
-                onClick={toggleModal}
-                style={{
-                  fontFamily: designTokens.textStyles.button.fontFamily,
-                  fontWeight: designTokens.textStyles.button.fontWeight,
-                  fontSize: designTokens.textStyles.button.fontSize,
-                  letterSpacing: designTokens.textStyles.button.letterSpacing,
-                  backgroundColor: designTokens.colors.black,
-                  color: designTokens.colors.white,
-                  paddingInline: designTokens.spacing.l,
-                  paddingBlock: designTokens.spacing.s,
-                  borderRadius: designTokens.corners.s,
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                  whiteSpace: 'nowrap',
-                  flex: '0 0 auto',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = designTokens.colors.grey800;
-                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.25)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = designTokens.colors.black;
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
-                }}
-              >
-                Let's talk
-              </button>
+              {/* Navigation links and button - right side */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: designTokens.spacing.l,
+              }}>
+                {/* Navigation links */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  gap: designTokens.spacing.s,
+                }}>
+                  {['Approach', 'Work', 'About'].map((label, index) => (
+                    <a
+                      key={label}
+                      href={`#${label.toLowerCase()}`}
+                      style={{
+                        fontFamily: designTokens.textStyles.tagLink.fontFamily,
+                        fontWeight: designTokens.textStyles.tagLink.fontWeight,
+                        fontSize: designTokens.textStyles.tagLink.fontSize,
+                        letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
+                        color: designTokens.colors.black,
+                        paddingInline: designTokens.spacing.l,
+                        paddingBlock: designTokens.spacing.s,
+                        textDecoration: 'none',
+                        borderRadius: designTokens.corners.s,
+                        whiteSpace: 'nowrap',
+                        flex: '0 0 auto',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      }}
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </div>
+
+                <button
+                  onClick={toggleModal}
+                  style={{
+                    fontFamily: designTokens.textStyles.button.fontFamily,
+                    fontWeight: designTokens.textStyles.button.fontWeight,
+                    fontSize: designTokens.textStyles.button.fontSize,
+                    letterSpacing: designTokens.textStyles.button.letterSpacing,
+                    backgroundColor: designTokens.colors.black,
+                    color: designTokens.colors.white,
+                    paddingInline: designTokens.spacing.l,
+                    paddingBlock: designTokens.spacing.s,
+                    borderRadius: designTokens.corners.s,
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                    whiteSpace: 'nowrap',
+                    flex: '0 0 auto',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = designTokens.colors.grey800;
+                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = designTokens.colors.black;
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+                  }}
+                >
+                  Let's talk
+                </button>
+              </div>
             </div>
           ) : (
-            // Slug состояние - только заголовок и крестик в том же навбаре
+            // Slug состояние - логотип слева, заголовок и крестик справа
             <div 
               style={{
                 display: 'flex',
@@ -267,44 +302,66 @@ export function Navbar() {
                 transitionDelay: isModalOpen ? '0.2s' : '0s',
               }}
             >
-              <h3 
-                style={{
-                  fontFamily: designTokens.textStyles.h3.fontFamily,
-                  fontSize: designTokens.textStyles.h3.fontSize,
-                  fontWeight: designTokens.textStyles.h3.fontWeight,
-                  letterSpacing: designTokens.textStyles.h3.letterSpacing,
-                  color: designTokens.colors.black,
-                  margin: 0,
-                }}
-              >
-                Case Study
-              </h3>
-              
-              <button
-                onClick={toggleModal}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-                  e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-                  e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                }}
-              >
-                <span style={{ fontSize: '18px', color: designTokens.colors.black }}>×</span>
-              </button>
+              {/* AirStudio Logo - left side */}
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                flex: '0 0 auto',
+              }}>
+                <Image 
+                  src="/img/Logo_SVG-Black.svg" 
+                  alt="AirStudio Logo" 
+                  width={134} 
+                  height={29}
+                  priority
+                />
+              </div>
+
+              {/* Title and close button - right side */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: designTokens.spacing.l,
+              }}>
+                <h3 
+                  style={{
+                    fontFamily: designTokens.textStyles.h3.fontFamily,
+                    fontSize: designTokens.textStyles.h3.fontSize,
+                    fontWeight: designTokens.textStyles.h3.fontWeight,
+                    letterSpacing: designTokens.textStyles.h3.letterSpacing,
+                    color: designTokens.colors.black,
+                    margin: 0,
+                  }}
+                >
+                  Case Study
+                </h3>
+                
+                <button
+                  onClick={toggleModal}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                    e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                    e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+                  }}
+                >
+                  <span style={{ fontSize: '18px', color: designTokens.colors.black }}>×</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -313,37 +370,39 @@ export function Navbar() {
       {/* Отдельная модалка - появляется снизу под навбаром */}
       {isModalOpen && (
         <div
+          onClick={toggleModal}
           style={{
             position: 'fixed',
             top: `calc(${designTokens.spacing.l} * 2 + 60px)`, // Под навбаром
             left: 0,
             right: 0,
             bottom: 0,
-            padding: `0 ${designTokens.spacing.xxxl}`,
+            padding: `0 ${isLargeScreen ? designTokens.spacing.xxxl : designTokens.spacing.xs}`,
             display: 'flex',
-            justifyContent: 'flex-end', // Выравнивание как у навбара
+            justifyContent: 'center', // Центрируем модал как навбар
             zIndex: 999, // Ниже навбара
             pointerEvents: isModalOpen ? 'auto' : 'none',
           }}
         >
           <div
             ref={modalContainerRef}
+            onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: designTokens.colors.white,
-              // Нижние углы 0, верхние скруглены для стыковки с навбаром
-              borderRadius: `${designTokens.corners.l} ${designTokens.corners.l} 0 0`,
-              padding: designTokens.spacing.l,
+              borderRadius: '0', // Убираем все скругления
+              padding: `${designTokens.spacing.l} ${designTokens.spacing.l} 0`, // Верхний и боковые паддинги
               border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderTop: 'none',
               borderBottom: 'none',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
               // Та же ширина что и навбар
               width: isLargeScreen 
                 ? 'min(70vw, calc(100vw - 2 * ' + designTokens.spacing.xxxl + '))' 
-                : 'calc(100vw - 2 * ' + designTokens.spacing.xxxl + ')',
+                : 'calc(100vw - 2 * ' + designTokens.spacing.xs + ')',
               minWidth: '320px',
               maxWidth: isLargeScreen ? '800px' : '600px',
-              height: 'calc(100vh - ' + designTokens.spacing.l + ' * 2 - 80px)', // До низа экрана
-              overflow: 'hidden',
+              height: `calc(100vh - ${designTokens.spacing.l} * 2 - 60px)`, // До самого низа экрана
+              overflow: 'auto', // Включаем скролл
               // GSAP управляет анимацией - не нужны CSS transforms
             }}
           >

@@ -46,14 +46,13 @@ export function CaseStudyCard({ caseStudy }: CaseStudyCardProps) {
               alt={caseStudy.cover.alt || caseStudy.title}
               width={800}
               height={450}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
 
         {/* Title */}
         <h3 
-          className="group-hover:opacity-70 transition-opacity"
           style={{
             fontFamily: designTokens.textStyles.h3.fontFamily,
             fontSize: designTokens.textStyles.h3.fontSize,

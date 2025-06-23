@@ -1,24 +1,44 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { designTokens } from '../lib/design-tokens';
 
 export function ApproachSection() {
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth > 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   return (
     <section 
       id="approach"
       style={{
         minHeight: '100vh',
-        padding: `${designTokens.spacing.xxxl} ${designTokens.spacing.xxxl}`,
+        padding: '20px',
         backgroundColor: designTokens.colors.grey100,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        textAlign: 'center',
       }}
     >
-      <div style={{ maxWidth: '800px', width: '100%' }}>
+      {/* Wide container */}
+      <div 
+        style={{ 
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: designTokens.spacing.l,
+        }}
+      >
         <h2 
           style={{
             fontFamily: designTokens.textStyles.h1.fontFamily,
@@ -26,48 +46,39 @@ export function ApproachSection() {
             fontWeight: designTokens.textStyles.h1.fontWeight,
             letterSpacing: designTokens.textStyles.h1.letterSpacing,
             color: designTokens.colors.black,
-            marginBottom: designTokens.spacing.xl,
+            textAlign: 'center',
+            margin: 0,
           }}
         >
-          Our Approach
+          Approach
         </h2>
         
-        <p 
-          style={{
-            fontFamily: designTokens.textStyles.paragraph.fontFamily,
-            fontSize: designTokens.textStyles.paragraph.fontSize,
-            fontWeight: designTokens.textStyles.paragraph.fontWeight,
-            letterSpacing: designTokens.textStyles.paragraph.letterSpacing,
-            color: designTokens.colors.grey800,
-            marginBottom: designTokens.spacing.xxl,
-            lineHeight: '1.6',
-          }}
-        >
-          We believe in thoughtful design that serves both users and business goals. 
-          Our approach combines strategic thinking with creative execution to deliver 
-          exceptional digital experiences.
-        </p>
-
+        {/* Grid of approach features - теперь может быть 3 или 4 колонки на больших экранах */}
         <div 
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: designTokens.spacing.xl,
-            marginTop: designTokens.spacing.xxxl,
+            gridTemplateColumns: isLargeScreen ? 'repeat(auto-fit, minmax(300px, 1fr))' : '1fr',
+            gap: designTokens.spacing.l,
+            width: '100%',
+            maxWidth: '1400px', // Ограничиваем максимальную ширину сетки
           }}
         >
           {[
             {
-              title: 'Research',
-              description: 'Deep understanding of your users and market'
+              title: 'Architecture mindset.',
+              description: 'I design clear systems, connecting product logic, visuals & teams.'
             },
             {
-              title: 'Strategy',
-              description: 'Clear roadmap aligned with business objectives'
+              title: 'Multi-tool speed.',
+              description: 'I rapidly learn & combine tools—saving teams time & resources.'
             },
             {
-              title: 'Design',
-              description: 'Beautiful, functional solutions that work'
+              title: 'Emotional aesthetics.',
+              description: 'I craft designs that speak visually and emotionally.'
+            },
+            {
+              title: 'Hidden connections.',
+              description: 'I intuitively uncover insights, solving blocks with fresh solutions.'
             }
           ].map((item, index) => (
             <div 
@@ -77,13 +88,7 @@ export function ApproachSection() {
                 backgroundColor: designTokens.colors.white,
                 borderRadius: designTokens.corners.l,
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
+                width: '100%',
               }}
             >
               <h3 
@@ -93,7 +98,7 @@ export function ApproachSection() {
                   fontWeight: designTokens.textStyles.h3.fontWeight,
                   letterSpacing: designTokens.textStyles.h3.letterSpacing,
                   color: designTokens.colors.black,
-                  marginBottom: designTokens.spacing.m,
+                  marginBottom: designTokens.spacing.l,
                 }}
               >
                 {item.title}
@@ -106,6 +111,7 @@ export function ApproachSection() {
                   letterSpacing: designTokens.textStyles.body1.letterSpacing,
                   color: designTokens.colors.grey800,
                   lineHeight: '1.5',
+                  margin: 0,
                 }}
               >
                 {item.description}

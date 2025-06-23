@@ -203,7 +203,16 @@ function renderContentBlock(block: ContentBlock, index: number) {
 
 export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
   return (
-    <>
+    <div 
+      style={{
+        fontFamily: designTokens.textStyles.body1.fontFamily,
+        fontSize: designTokens.textStyles.body1.fontSize,
+        fontWeight: designTokens.textStyles.body1.fontWeight,
+        letterSpacing: designTokens.textStyles.body1.letterSpacing,
+        color: designTokens.colors.grey800,
+        lineHeight: '1.6',
+      }}
+    >
       {/* Теги */}
       <div style={{
         display: 'flex',
@@ -232,27 +241,6 @@ export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
           );
         })}
       </div>
-
-      {/* Scrollable content */}
-      <div 
-        style={{
-          height: 'calc(100% - 60px)', // Оставляем место для тегов
-          overflowY: 'auto',
-          paddingRight: designTokens.spacing.s,
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent',
-        }}
-      >
-        <div 
-          style={{
-            fontFamily: designTokens.textStyles.body1.fontFamily,
-            fontSize: designTokens.textStyles.body1.fontSize,
-            fontWeight: designTokens.textStyles.body1.fontWeight,
-            letterSpacing: designTokens.textStyles.body1.letterSpacing,
-            color: designTokens.colors.grey800,
-            lineHeight: '1.6',
-          }}
-        >
           <h2 style={{ 
             fontFamily: designTokens.textStyles.h2.fontFamily,
             fontSize: designTokens.textStyles.h2.fontSize,
@@ -404,14 +392,12 @@ export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
             </div>
           )}
 
-          {/* Если контента нет */}
-          {(!caseStudy.content || caseStudy.content.length === 0) && (
-            <p style={{ marginBottom: designTokens.spacing.xxl, opacity: 0.7 }}>
-              Контент для этого кейса еще не добавлен в CMS.
-            </p>
-          )}
-        </div>
-      </div>
-    </>
+      {/* Если контента нет */}
+      {(!caseStudy.content || caseStudy.content.length === 0) && (
+        <p style={{ marginBottom: designTokens.spacing.xxl, opacity: 0.7 }}>
+          Контент для этого кейса еще не добавлен в CMS.
+        </p>
+      )}
+    </div>
   );
 } 

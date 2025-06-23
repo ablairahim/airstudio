@@ -21,7 +21,6 @@ export function BlurOverlay({ isOpen }: BlurOverlayProps) {
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         zIndex: 999, // Под navbar (который 1000)
-        transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
         opacity: isOpen ? 1 : 0,
         pointerEvents: isOpen ? 'auto' : 'none',
       }}
