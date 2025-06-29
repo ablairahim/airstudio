@@ -5,7 +5,8 @@ export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   useCdn: process.env.NODE_ENV === 'production',
-  apiVersion: '2024-01-01',
+  apiVersion: '2024-12-19',
+  perspective: 'published',
 })
 
 const builder = imageUrlBuilder(client)
@@ -30,16 +31,6 @@ export interface CaseStudy {
     }
     alt?: string
   }
-  link?: {
-    text: string
-    url: string
-  }
-  facts?: {
-    client?: string
-    year?: string
-    role?: string
-  }
-  loomEmbed?: string
   content?: ContentBlock[]
 }
 
@@ -62,6 +53,21 @@ export interface Callout {
 }
 
 export type ContentBlock = 
+  | {
+      _type: 'linkBlock'
+      text: string
+      url: string
+    }
+  | {
+      _type: 'factsBlock'
+      client?: string
+      year?: string
+      role?: string
+    }
+  | {
+      _type: 'loomBlock'
+      url: string
+    }
   | {
       _type: 'metricsCallout'
       title?: string
@@ -91,8 +97,8 @@ export type ContentBlock =
     }
   | {
       _type: 'textSection'
-      heading: string
-      text: string
+      heading?: string
+      text?: any[] // PortableText block content
     }
   | {
       _type: 'imageBlock'
@@ -103,76 +109,165 @@ export type ContentBlock =
         alt?: string
       }
     }
+  | {
+      _type: 'videoBlock'
+      video?: {
+        asset: {
+          url: string
+        }
+      }
+      alt?: string
+      poster?: {
+        asset: {
+          url: string
+        }
+        alt?: string
+      }
+    }
 
 // Helper functions for fetching data
 export async function getAllCaseStudies(): Promise<CaseStudy[]> {
-  return client.fetch(`
-    *[_type == "caseStudy"] | order(_createdAt desc) {
-      _id,
-      _type,
-      slug,
-      tags,
-      title,
-      summary,
-      cover,
-      facts
-    }
-  `)
+  try {
+    const query = `
+      *[_type == "caseStudy"] | order(_createdAt desc) {
+        _id,
+        _type,
+        slug,
+        tags,
+        title,
+        summary,
+        cover
+      }
+    `
+    
+    const result = await client.fetch(query, {}, {
+      cache: 'no-cache',
+      next: { revalidate: 0 }
+    })
+    
+    // Убеждаемся что возвращаем массив, даже если результат null или undefined
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error('Error fetching case studies:', error)
+    return []
+  }
 }
 
 export async function getCaseStudyBySlug(slug: string): Promise<CaseStudy | null> {
-  return client.fetch(`
-    *[_type == "caseStudy" && slug.current == $slug][0] {
-      _id,
-      _type,
-      slug,
-      tags,
-      title,
-      summary,
-      cover {
-        asset-> {
-          url
-        },
-        alt
-      },
-      link,
-      facts,
-      loomEmbed,
-      content[] {
+  try {
+    const query = `
+      *[_type == "caseStudy" && slug.current == $slug][0] {
+        _id,
         _type,
-        // For metricsCallout
-        _type == "metricsCallout" => {
-          _type,
-          title,
-          metrics
+        slug,
+        tags,
+        title,
+        summary,
+        cover {
+          asset-> {
+            url
+          },
+          alt
         },
-        // For text callouts
-        _type in ["promptCallout", "quoteCallout", "testimonialCallout"] => {
+        content[] {
           _type,
-          title,
-          text,
-          author,
-          authorTitle
-        },
-        // For text sections
-        _type == "textSection" => {
-          _type,
-          heading,
-          text
-        },
-        // For images
-        _type == "imageBlock" => {
-          _type,
-          image {
-            asset-> {
-              url
+          // For linkBlock  
+          _type == "linkBlock" => {
+            _type,
+            text,
+            url
+          },
+          // For factsBlock
+          _type == "factsBlock" => {
+            _type,
+            client,
+            year,
+            role
+          },
+          // For loomBlock
+          _type == "loomBlock" => {
+            _type,
+            url
+          },
+          // For metricsCallout
+          _type == "metricsCallout" => {
+            _type,
+            title,
+            metrics
+          },
+          // For text callouts
+          _type in ["promptCallout", "quoteCallout", "testimonialCallout"] => {
+            _type,
+            title,
+            text,
+            author,
+            authorTitle
+          },
+          // For text sections
+          _type == "textSection" => {
+            _type,
+            heading,
+            text[] {
+              ...,
+              _type == "block" => {
+                ...,
+                children[] {
+                  ...,
+                  _type == "span" => {
+                    ...,
+                    marks[@ != null] {
+                      ...,
+                      _type == "link" => {
+                        ...,
+                        _key,
+                        href
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          // For images
+          _type == "imageBlock" => {
+            _type,
+            image {
+              asset-> {
+                url
+              },
+              alt
+            }
+          },
+          // For videos
+          _type == "videoBlock" => {
+            _type,
+            video {
+              asset-> {
+                url
+              }
             },
-            alt
+            alt,
+            poster {
+              asset-> {
+                url
+              },
+              alt
+            }
           }
         }
       }
-    }
-  `, { slug })
+    `
+    
+    const result = await client.fetch(query, { slug }, { 
+      cache: 'no-cache',
+      next: { revalidate: 0 }
+    })
+    
+    return result || null
+  } catch (error) {
+    console.error('Error fetching case study by slug:', error)
+    return null
+  }
 }
 
 export async function getCallout(id: string): Promise<Callout | null> {

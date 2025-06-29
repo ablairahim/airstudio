@@ -48,18 +48,20 @@ export const caseStudy = defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    // Summary paragraph
+    // Summary paragraph (required, shows under covers only)
     defineField({
       name: 'summary',
       title: 'Summary',
       type: 'text',
       rows: 3,
+      validation: (Rule) => Rule.required(),
+      description: 'Brief description shown under case study covers on the main page',
     }),
 
     // Cover for Work section (not shown in slug)
     defineField({
       name: 'cover',
-      title: 'Cover (for Work section)',
+      title: 'Cover Image (for Work section)',
       type: 'image',
       options: {
         hotspot: true,
@@ -73,63 +75,121 @@ export const caseStudy = defineType({
       ],
     }),
 
-    // Link with custom text
+    // Cover Video - takes priority over image if provided
     defineField({
-      name: 'link',
-      title: 'Link',
-      type: 'object',
-      fields: [
-        {
-          name: 'text',
-          title: 'Link Text',
-          type: 'string',
-        },
-        {
-          name: 'url',
-          title: 'URL',
-          type: 'url',
-        },
-      ],
+      name: 'coverVideo',
+      title: 'Cover Video (for Work section)',
+      type: 'file',
+      description: 'Video file (webm/mp4) - will be used instead of cover image if provided',
+      options: {
+        accept: '.mp4,.webm',
+      },
     }),
 
-    // Facts: Client, Year, Role
-    defineField({
-      name: 'facts',
-      title: 'Facts',
-      type: 'object',
-      fields: [
-        {
-          name: 'client',
-          title: 'Client',
-          type: 'string',
-        },
-        {
-          name: 'year',
-          title: 'Year',
-          type: 'string',
-        },
-        {
-          name: 'role',
-          title: 'Role',
-          type: 'string',
-        },
-      ],
-    }),
-
-    // Loom embed
-    defineField({
-      name: 'loomEmbed',
-      title: 'Loom Embed',
-      type: 'url',
-      description: 'Loom video URL',
-    }),
-
-    // Flexible content blocks - ВСЕ INLINE!
+    // Flexible content blocks - ALL DRAGGABLE!
     defineField({
       name: 'content',
       title: 'Content',
       type: 'array',
       of: [
+        // LINK BLOCK - draggable
+        {
+          type: 'object',
+          name: 'linkBlock',
+          title: 'Link',
+          fields: [
+            {
+              name: 'text',
+              title: 'Link Text',
+              type: 'string',
+            },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+            },
+          ],
+          preview: {
+            select: {
+              text: 'text',
+              url: 'url',
+            },
+            prepare({ text, url }) {
+              return {
+                title: 'Link',
+                subtitle: text ? `${text} → ${url}` : url,
+                media: null,
+              }
+            },
+          },
+        },
+
+        // FACTS BLOCK - draggable
+        {
+          type: 'object',
+          name: 'factsBlock',
+          title: 'Facts',
+          fields: [
+            {
+              name: 'client',
+              title: 'Client',
+              type: 'string',
+            },
+            {
+              name: 'year',
+              title: 'Year',
+              type: 'string',
+            },
+            {
+              name: 'role',
+              title: 'Role',
+              type: 'string',
+            },
+          ],
+          preview: {
+            select: {
+              client: 'client',
+              year: 'year',
+              role: 'role',
+            },
+            prepare({ client, year, role }) {
+              const facts = [client, year, role].filter(Boolean).join(' • ')
+              return {
+                title: 'Facts',
+                subtitle: facts || 'No facts added',
+                media: null,
+              }
+            },
+          },
+        },
+
+        // LOOM EMBED BLOCK - draggable
+        {
+          type: 'object',
+          name: 'loomBlock',
+          title: 'Loom Video',
+          fields: [
+            {
+              name: 'url',
+              title: 'Loom Video URL',
+              type: 'url',
+              description: 'Loom video URL',
+            },
+          ],
+          preview: {
+            select: {
+              url: 'url',
+            },
+            prepare({ url }) {
+              return {
+                title: 'Loom Video',
+                subtitle: url,
+                media: null,
+              }
+            },
+          },
+        },
+
         // METRICS CALLOUT - inline
         {
           type: 'object',
@@ -321,14 +381,59 @@ export const caseStudy = defineType({
             {
               name: 'text',
               title: 'Text',
-              type: 'text',
-              rows: 4,
+              type: 'array',
+              of: [
+                {
+                  type: 'block',
+                  styles: [
+                    { title: 'Normal', value: 'normal' },
+                    { title: 'H1', value: 'h1' },
+                    { title: 'H2', value: 'h2' },
+                    { title: 'H3', value: 'h3' },
+                    { title: 'Quote', value: 'blockquote' },
+                  ],
+                  lists: [
+                    { title: 'Bullet', value: 'bullet' },
+                    { title: 'Numbered', value: 'number' },
+                  ],
+                  marks: {
+                    decorators: [
+                      { title: 'Strong', value: 'strong' },
+                      { title: 'Emphasis', value: 'em' },
+                      { title: 'Code', value: 'code' },
+                    ],
+                    annotations: [
+                      {
+                        title: 'URL',
+                        name: 'link',
+                        type: 'object',
+                        fields: [
+                          {
+                            title: 'URL',
+                            name: 'href',
+                            type: 'url',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
             },
           ],
           preview: {
             select: {
               title: 'heading',
-              subtitle: 'text',
+              text: 'text',
+            },
+            prepare({ title, text }) {
+              const plainText = text && text.length > 0 
+                ? text[0].children?.map((child: any) => child.text).join('') || ''
+                : ''
+              return {
+                title: title || 'Text Section',
+                subtitle: plainText.slice(0, 100) + (plainText.length > 100 ? '...' : ''),
+              }
             },
           },
         },
@@ -359,6 +464,52 @@ export const caseStudy = defineType({
             select: {
               media: 'image',
               title: 'image.alt',
+            },
+          },
+        },
+
+        // Videos
+        {
+          type: 'object',
+          name: 'videoBlock',
+          title: 'Video (Autoplay)',
+          fields: [
+            {
+              name: 'video',
+              title: 'Video File',
+              type: 'file',
+              description: 'Upload a video file (webm/mp4) that will autoplay on loop',
+              options: {
+                accept: '.mp4,.webm,.mov',
+              },
+            },
+            {
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Description for accessibility',
+            },
+            {
+              name: 'poster',
+              title: 'Poster Image (Optional)',
+              type: 'image',
+              description: 'Thumbnail image shown before video loads',
+              options: {
+                hotspot: true,
+              },
+            },
+          ],
+          preview: {
+            select: {
+              title: 'alt',
+              media: 'poster',
+            },
+            prepare({ title, media }) {
+              return {
+                title: 'Video',
+                subtitle: title || 'Autoplay video block',
+                media: media || null,
+              }
             },
           },
         },

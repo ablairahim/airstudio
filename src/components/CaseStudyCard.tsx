@@ -16,27 +16,29 @@ export function CaseStudyCard({ caseStudy }: CaseStudyCardProps) {
     >
       <div className="space-y-4">
         {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {caseStudy.tags.map((tag) => {
-            const colors = getTagColors(tag)
-            return (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full text-sm font-medium"
-                style={{
-                  backgroundColor: colors.background,
-                  color: colors.text,
-                  fontFamily: designTokens.textStyles.tag.fontFamily,
-                  fontSize: designTokens.textStyles.tag.fontSize,
-                  fontWeight: designTokens.textStyles.tag.fontWeight,
-                  letterSpacing: designTokens.textStyles.tag.letterSpacing,
-                }}
-              >
-                {getTagTitle(tag)}
-              </span>
-            )
-          })}
-        </div>
+        {caseStudy.tags && Array.isArray(caseStudy.tags) && caseStudy.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {caseStudy.tags.map((tag) => {
+              const colors = getTagColors(tag)
+              return (
+                <span
+                  key={tag}
+                  className="text-sm font-medium"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.text,
+                    fontFamily: designTokens.textStyles.tag.fontFamily,
+                    fontSize: designTokens.textStyles.tag.fontSize,
+                    fontWeight: designTokens.textStyles.tag.fontWeight,
+                    letterSpacing: designTokens.textStyles.tag.letterSpacing,
+                  }}
+                >
+                  {getTagTitle(tag)}
+                </span>
+              )
+            })}
+          </div>
+        )}
 
         {/* Cover Image */}
         {caseStudy.cover && (
@@ -78,24 +80,6 @@ export function CaseStudyCard({ caseStudy }: CaseStudyCardProps) {
           >
             {caseStudy.summary}
           </p>
-        )}
-
-        {/* Metrics */}
-        {caseStudy.facts && (
-          <div 
-            className="flex gap-4 opacity-70"
-            style={{
-              fontFamily: designTokens.textStyles.body1.fontFamily,
-              fontSize: designTokens.textStyles.body1.fontSize,
-              fontWeight: designTokens.textStyles.body1.fontWeight,
-              letterSpacing: designTokens.textStyles.body1.letterSpacing,
-              color: designTokens.colors.black,
-            }}
-          >
-            {caseStudy.facts.client && <span>{caseStudy.facts.client}</span>}
-            {caseStudy.facts.year && <span>{caseStudy.facts.year}</span>}
-            {caseStudy.facts.role && <span>{caseStudy.facts.role}</span>}
-          </div>
         )}
       </div>
     </Link>

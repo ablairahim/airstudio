@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { designTokens } from '@/lib/design-tokens'
 import { useModal } from '@/contexts/ModalContext'
 import { useState, useEffect } from 'react'
+import { getResponsiveTextStyle } from '@/lib/responsive-text'
 
 export default function Hero() {
   const { toggleModal } = useModal();
@@ -25,182 +26,89 @@ export default function Hero() {
 
   return (
     <section 
-      className="min-h-screen flex flex-col"
       style={{ 
-        position: 'relative',
-        backgroundColor: designTokens.colors.grey100,
-        padding: '20px',
-        paddingTop: 'calc(20vh + 60px + 20px)', // 20vh + navbar height + top padding
+        backgroundColor: designTokens.colors.lightGreen,
+        padding: designTokens.spacing.m,
+        paddingTop: `calc(60px + 80px)`, // navbar height + 80px
+        paddingBottom: '80px',
+        borderBottom: `1px solid rgba(0, 0, 0, 0.4)`,
       }}
     >
-      {/* Wide container for all content */}
+      {/* Text content aligned to left */}
       <div 
         style={{
-          width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: designTokens.spacing.l,
+          alignItems: 'flex-start',
+          gap: '32px', // 32px between text blocks
+          width: isLargeScreen ? '60%' : '100%', // Полная ширина на мобилке
         }}
       >
-        {/* Title */}
-        <h1 
-          style={{
-            fontFamily: designTokens.textStyles.h1.fontFamily,
-            fontSize: designTokens.textStyles.h1.fontSize,
-            fontWeight: designTokens.textStyles.h1.fontWeight,
-            letterSpacing: designTokens.textStyles.h1.letterSpacing,
-            color: designTokens.colors.black,
-            lineHeight: '1.1',
-            textAlign: 'center',
-            margin: 0,
-          }}
-        >
-          Designer & co-creator.
-        </h1>
-        
-        {/* Subtitle */}
+        {/* Main text block */}
         <h2 
           style={{
-            fontFamily: designTokens.textStyles.h2.fontFamily,
-            fontSize: designTokens.textStyles.h2.fontSize,
-            fontWeight: designTokens.textStyles.h2.fontWeight,
-            letterSpacing: designTokens.textStyles.h2.letterSpacing,
-            color: designTokens.colors.grey800,
-            lineHeight: '1.3',
-            textAlign: 'center',
+            ...getResponsiveTextStyle('h2', !isLargeScreen),
+            color: designTokens.colors.black,
             margin: 0,
-            maxWidth: '800px', // Ограничиваем только текст
           }}
         >
-          I create end-to-end product systems with clarity, 
-          mixing human sense, AI, and a touch of vibecoding.
+          Ablai Rakhimbekov is a digital designer, creative technologist, and product builder with 5 years of experience designing brand systems, scalable products, and technical implementations. Working with global teams across North America, I've collaborated with 10 funded startups, delivered 100+ projects, contributed to products that collectively raised $50M+, and earned 3 awards, including Gold recognition.
+Currently available for select projects.
         </h2>
 
-        {/* CTA Button */}
-        <button
-          onClick={toggleModal}
-          style={{
-            fontFamily: designTokens.textStyles.button.fontFamily,
-            fontWeight: designTokens.textStyles.button.fontWeight,
-            fontSize: designTokens.textStyles.button.fontSize,
-            letterSpacing: designTokens.textStyles.button.letterSpacing,
-            backgroundColor: designTokens.colors.black,
-            color: designTokens.colors.white,
-            paddingInline: designTokens.spacing.l,
-            paddingBlock: designTokens.spacing.s,
-            borderRadius: designTokens.corners.s,
-            border: 'none',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-          }}
-        >
-          Let's talk
-        </button>
-
-        {/* Flexible Loom video placeholder */}
+        {/* Third text block - Social links */}
         <div 
           style={{
-            width: '100%',
-            maxWidth: '1000px', // Ограничиваем максимальную ширину видео
-            aspectRatio: '16 / 9',
-            backgroundColor: showRealVideo ? 'transparent' : designTokens.colors.grey500,
-            borderRadius: designTokens.corners.l,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            marginTop: designTokens.spacing.xxl,
+            gap: designTokens.spacing.s, // 12px between links
+            flexWrap: 'wrap',
           }}
         >
-          {showRealVideo ? (
-            /* Real Loom video */
-            <iframe
-              src={loomEmbedUrl}
-              frameBorder="0"
-              allowFullScreen
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: designTokens.corners.l,
-              }}
-            />
-          ) : (
-            /* Placeholder */
-            <>
-              {/* Video placeholder content */}
-              <div 
-                style={{
-                  textAlign: 'center',
-                  color: designTokens.colors.white,
-                }}
-              >
-                <div 
-                  style={{
-                    width: '120px',
-                    height: '120px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto',
-                    marginBottom: designTokens.spacing.l,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {/* Play button triangle */}
-                  <div 
-                    style={{
-                      width: 0,
-                      height: 0,
-                      borderLeft: '30px solid white',
-                      borderTop: '18px solid transparent',
-                      borderBottom: '18px solid transparent',
-                      marginLeft: '6px',
-                    }}
-                  />
-                </div>
-                <p 
-                  style={{
-                    fontFamily: designTokens.textStyles.body1.fontFamily,
-                    fontSize: designTokens.textStyles.h3.fontSize,
-                    fontWeight: designTokens.textStyles.body1.fontWeight,
-                    opacity: 0.8,
-                    margin: 0,
-                  }}
-                >
-                  Loom Video Placeholder
-                </p>
-              </div>
-
-              {/* Decorative elements */}
-              <div 
-                style={{
-                  position: 'absolute',
-                  top: '30px',
-                  right: '30px',
-                  width: '80px',
-                  height: '80px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
-                }}
-              />
-              <div 
-                style={{
-                  position: 'absolute',
-                  bottom: '40px',
-                  left: '40px',
-                  width: '60px',
-                  height: '60px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
-                }}
-              />
-            </>
-          )}
+          <a 
+            href="https://www.behance.net/ablayrakhim"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: designTokens.textStyles.tagLink.fontFamily,
+              fontSize: designTokens.textStyles.tagLink.fontSize,
+              fontWeight: designTokens.textStyles.tagLink.fontWeight,
+              letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
+              color: designTokens.colors.black,
+              textDecoration: 'none',
+            }}
+          >
+            Behance
+          </a>
+          <a 
+            href="https://www.instagram.com/abl.ai.r/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: designTokens.textStyles.tagLink.fontFamily,
+              fontSize: designTokens.textStyles.tagLink.fontSize,
+              fontWeight: designTokens.textStyles.tagLink.fontWeight,
+              letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
+              color: designTokens.colors.black,
+              textDecoration: 'none',
+            }}
+          >
+            Instagram
+          </a>
+          <a 
+            href="https://www.linkedin.com/in/abl-ai-r/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: designTokens.textStyles.tagLink.fontFamily,
+              fontSize: designTokens.textStyles.tagLink.fontSize,
+              fontWeight: designTokens.textStyles.tagLink.fontWeight,
+              letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
+              color: designTokens.colors.black,
+              textDecoration: 'none',
+            }}
+          >
+            Linkedin
+          </a>
         </div>
       </div>
     </section>

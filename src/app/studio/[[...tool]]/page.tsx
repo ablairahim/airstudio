@@ -11,34 +11,7 @@
 
 import { NextStudio } from 'next-sanity/studio'
 import config from '../../../../sanity.config'
-import { useEffect, useState } from 'react'
 
 export default function StudioPage() {
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  // Предотвращаем ошибки гидратации
-  if (!isClient) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        height: '100vh',
-        fontFamily: 'system-ui, sans-serif'
-      }}>
-        Loading Studio...
-      </div>
-    )
-  }
-
-  return (
-    <NextStudio 
-      config={config}
-      unstable_noAuthBoundary={true}
-    />
-  )
+  return <NextStudio config={config} />
 }

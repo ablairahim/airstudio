@@ -59,11 +59,7 @@ module.exports = {
         'xxxl': '5rem',      // 80px
       },
       
-      // Custom Border Radius
-      borderRadius: {
-        's': '0.5rem',       // 8px
-        'l': '1.25rem',      // 20px
-      },
+
       
       // Typography
       fontFamily: {

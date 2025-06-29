@@ -1,11 +1,68 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { designTokens } from '../lib/design-tokens';
+import { siteSettings } from '../lib/design-system';
 import { client } from '../sanity/lib/client';
-import { createClient } from 'next-sanity';
 import { useModal } from '../contexts/ModalContext';
+
+// Inline компонент для медиа (видео или изображение)
+function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12' }: { 
+  caseStudy: CaseStudyPreview; 
+  aspectRatio?: string;
+}) {
+  // Видео имеет приоритет над изображением
+  if (caseStudy.coverVideo?.asset?.url) {
+    return (
+      <video
+        src={caseStudy.coverVideo.asset.url}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          display: 'block',
+        }}
+        autoPlay={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY}
+        muted
+        loop={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY}
+        playsInline
+        preload={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY ? 'auto' : 'metadata'}
+      />
+    );
+  }
+  
+  // Fallback на изображение
+  if (caseStudy.cover?.asset?.url) {
+    return (
+      <img
+        src={caseStudy.cover.asset.url}
+        alt={caseStudy.cover.alt || caseStudy.title}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          display: 'block',
+        }}
+      />
+    );
+  }
+  
+  // Fallback на placeholder
+  return (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: designTokens.colors.grey500,
+      color: designTokens.colors.white,
+      ...designTokens.textStyles.body1,
+    }}>
+      No Cover Media
+    </div>
+  );
+}
 
 // Inline компонент для тегов
 function CaseStudyTag({ tag }: { tag: string }) {
@@ -36,9 +93,6 @@ function CaseStudyTag({ tag }: { tag: string }) {
         ...designTokens.textStyles.tag,
         backgroundColor,
         color: designTokens.colors.black,
-        paddingInline: designTokens.spacing.s,
-        paddingBlock: designTokens.spacing.xs,
-        borderRadius: designTokens.corners.s,
         display: 'inline-block',
         whiteSpace: 'nowrap',
       }}
@@ -58,6 +112,9 @@ interface CaseStudyPreview {
     asset: { url: string }
     alt?: string
   }
+  coverVideo?: {
+    asset: { url: string }
+  }
   // Metrics from callouts for preview
   metrics?: Array<{ value: string; label: string }>
 }
@@ -68,16 +125,9 @@ export function WorkSection() {
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const { openCaseModal } = useModal();
 
-  console.log('🎯 WorkSection render - loading:', loading, 'caseStudies:', caseStudies.length);
 
-  // Специальный клиент для разработки (может получать неопубликованный контент)
-  const devClient = createClient({
-    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-    apiVersion: '2025-06-17',
-    useCdn: false, // Отключаем CDN для получения свежих данных
-    perspective: 'previewDrafts', // Получаем черновики
-  });
+
+
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -92,124 +142,64 @@ export function WorkSection() {
   useEffect(() => {
     async function fetchCaseStudies() {
       try {
-        console.log('🔍 Starting to fetch case studies...');
-        console.log('🔍 Client config:', { 
-          projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-          dataset: process.env.NEXT_PUBLIC_SANITY_DATASET 
-        });
-        
-        // Сначала простой запрос для проверки подключения
-        console.log('🔍 Testing basic connection...');
-        const testQuery = `*[_type == "caseStudy"][0..2] { _id, title, _updatedAt }`;
-        console.log('🔍 Test query:', testQuery);
-        
-        const testData = await client.fetch(testQuery);
-        console.log('✅ Test query result:', testData);
-        
-        // Если обычный клиент не находит данные, пробуем devClient для черновиков
-        if (!testData || testData.length === 0) {
-          console.log('🔍 No published data, trying to fetch drafts...');
-          const draftTestData = await devClient.fetch(testQuery);
-          console.log('✅ Draft test query result:', draftTestData);
-          
-          if (draftTestData && draftTestData.length > 0) {
-            console.log('✅ Found drafts! Using devClient for full query...');
-            
-            const query = `
-              *[_type == "caseStudy"] {
-                _id,
-                title,
-                summary,
-                slug,
-                tags,
-                cover {
-                  asset-> {
-                    url
-                  },
-                  alt
-                },
-                "metrics": content[_type == "metricsCallout"][0].metrics[0..2],
-                _updatedAt
-              }
-            `;
-            
-            console.log('🔍 Executing draft query:', query);
-            const data = await devClient.fetch(query);
-            console.log('✅ Fetched draft case studies:', data);
-            console.log('📊 Number of draft case studies:', data.length);
-            
-            if (data.length > 0) {
-              console.log('✅ Using draft CMS data');
-              setCaseStudies(data);
-              return; // Выходим из функции, данные найдены
-            }
-          }
-        }
-        
-        if (testData && testData.length > 0) {
-          console.log('✅ Connection works! Fetching full data...');
-          
-          // Теперь полный запрос (включая неопубликованные для разработки)
-          const query = `
-            *[_type == "caseStudy"] {
-              _id,
-              title,
-              summary,
-              slug,
-              tags,
-              cover {
-                asset-> {
-                  url
-                },
-                alt
+        const query = `
+          *[_type == "caseStudy"] {
+            _id,
+            title,
+            summary,
+            slug,
+            tags,
+            cover {
+              asset-> {
+                url
               },
-              "metrics": content[_type == "metricsCallout"][0].metrics[0..2],
-              _updatedAt
-            }
-          `;
-          
-          console.log('🔍 Executing full query:', query);
-          const data = await client.fetch(query);
-          console.log('✅ Fetched case studies:', data);
-          console.log('📊 Number of case studies:', data.length);
-          
-          if (data.length === 0) {
-            console.log('⚠️ No case studies found in CMS, using test data');
-            const testCaseStudy = {
-              _id: 'test-case',
-              title: 'Test Case Study',
-              summary: 'This is a test case study to verify the system works',
-              slug: { current: 'test-case' },
-              tags: ['ux-ui-design', 'experiment'],
-              cover: undefined,
-              metrics: [
-                { value: '+30%', label: 'Retention' },
-                { value: '2x', label: 'Engagement' }
-              ]
-            };
-            setCaseStudies([testCaseStudy]);
-          } else {
-            console.log('✅ Using CMS data');
-            setCaseStudies(data);
+              alt
+            },
+            coverVideo {
+              asset-> {
+                url
+              }
+            },
+            "metrics": content[_type == "metricsCallout"][0].metrics[0..2],
+            _updatedAt
           }
+        `;
+        const data = await client.fetch(query);
+        
+        if (data.length > 0) {
+          // Ищем кейс с нужным названием и помещаем его первым
+          const targetKeywords = ["How I Decided", "Create Something", "Business Value", "Clear Roadmap"];
+          const targetIndex = data.findIndex((caseStudy: any) => 
+            caseStudy.title && targetKeywords.some(keyword => 
+              caseStudy.title.toLowerCase().includes(keyword.toLowerCase())
+            )
+          );
+          
+          let sortedData = [...data];
+          if (targetIndex > 0) {
+            // Перемещаем найденный кейс в начало
+            const targetCase = sortedData.splice(targetIndex, 1)[0];
+            sortedData.unshift(targetCase);
+          }
+          
+          setCaseStudies(sortedData);
         } else {
-          console.log('⚠️ No data from test query, using fallback');
           const testCaseStudy = {
             _id: 'test-case',
-            title: 'Test Case Study (No CMS Data)',
-            summary: 'This is a test case study - no data found in CMS',
+            title: 'Test Case Study',
+            summary: 'This is a test case study to verify the system works',
             slug: { current: 'test-case' },
-            tags: ['ux-ui-design'],
+            tags: ['ux-ui-design', 'experiment'],
             cover: undefined,
             metrics: [
-              { value: '+30%', label: 'Retention' }
+              { value: '+30%', label: 'Retention' },
+              { value: '2x', label: 'Engagement' }
             ]
           };
           setCaseStudies([testCaseStudy]);
         }
         
       } catch (error) {
-        console.error('❌ Error fetching case studies:', error);
         // Устанавливаем тестовые данные при ошибке
         const testCaseStudy = {
           _id: 'test-case-error',
@@ -232,24 +222,27 @@ export function WorkSection() {
   }, []);
 
   const handleCaseStudyClick = (caseStudy: CaseStudyPreview) => {
-    console.log('🎯 Case study clicked:', caseStudy.slug.current);
+
     openCaseModal(caseStudy.slug.current);
   };
 
   if (loading) {
     return (
-      <section 
-        id="work"
-        style={{
-          minHeight: '100vh',
-          padding: '20px',
-          backgroundColor: designTokens.colors.grey100,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+          <section 
+      id="work"
+      style={{
+        minHeight: '100vh',
+        paddingTop: designTokens.spacing.xxxl,     // 80px
+        paddingBottom: designTokens.spacing.xxxl,  // 80px
+        paddingLeft: designTokens.spacing.m,       // 20px
+        paddingRight: designTokens.spacing.m,      // 20px
+        backgroundColor: designTokens.colors.grey100,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
         <div 
           style={{ 
             width: '100%',
@@ -259,23 +252,13 @@ export function WorkSection() {
             gap: designTokens.spacing.l,
           }}
         >
-          <h2 
-            style={{
-              ...designTokens.textStyles.h1,
-              color: designTokens.colors.black,
-              textAlign: 'center',
-              margin: 0,
-            }}
-          >
-            Works
-          </h2>
-          <p style={{
-            ...designTokens.textStyles.h3,
-            color: designTokens.colors.grey500,
-            textAlign: 'center',
-          }}>
-            Loading case studies...
-          </p>
+                  <p style={{
+          ...designTokens.textStyles.h3,
+          color: designTokens.colors.grey500,
+          textAlign: 'center',
+        }}>
+          Loading case studies...
+        </p>
         </div>
       </section>
     );
@@ -286,7 +269,10 @@ export function WorkSection() {
       id="work"
       style={{
         minHeight: '100vh',
-        padding: '20px',
+        paddingTop: designTokens.spacing.xxxl,     // 80px
+        paddingBottom: designTokens.spacing.xxxl,  // 80px
+        paddingLeft: designTokens.spacing.m,       // 20px
+        paddingRight: designTokens.spacing.m,      // 20px
         backgroundColor: designTokens.colors.grey100,
         display: 'flex',
         flexDirection: 'column',
@@ -300,156 +286,207 @@ export function WorkSection() {
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: designTokens.spacing.l,
+          gap: designTokens.spacing.xxl,  // 40px between rows
         }}
       >
-        <h2 
-          style={{
-            ...designTokens.textStyles.h1,
-            color: designTokens.colors.black,
-            textAlign: 'center',
-            margin: 0,
-          }}
-        >
-          Works
-        </h2>
-
-        {/* Grid of case studies - теперь может быть 2-3 колонки */}
-        <div 
-          style={{
+        {/* Case Studies Grid - First row: 2 large, then rows of 4 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xxl }}>
+          
+          {/* First row - Loom placeholder + first CMS case study */}
+          <div style={{
             display: 'grid',
-            gridTemplateColumns: isLargeScreen ? 'repeat(auto-fit, minmax(400px, 1fr))' : '1fr',
+            gridTemplateColumns: isLargeScreen ? '1fr 1fr' : '1fr',
             gap: designTokens.spacing.l,
-            width: '100%',
-            maxWidth: '1400px',
-          }}
-        >
-          {caseStudies.map((caseStudy) => (
-            <div
-              key={caseStudy._id}
-              onClick={() => handleCaseStudyClick(caseStudy)}
-              style={{
-                backgroundColor: designTokens.colors.white,
-                borderRadius: designTokens.corners.l,
-                overflow: 'hidden',
-                cursor: 'pointer',
-                position: 'relative',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                width: '100%',
-              }}
-            >
-              {/* Cover Image - flexible aspect ratio */}
+          }}>
+            {/* Loom Placeholder - not from CMS */}
+            <div style={{
+              overflow: 'hidden',
+              cursor: 'pointer',
+              position: 'relative',
+            }}>
+              {/* Loom Video */}
               <div style={{
                 position: 'relative',
-                aspectRatio: '16 / 9',
+                aspectRatio: '16 / 12',
                 backgroundColor: designTokens.colors.grey500,
               }}>
-                {/* Tags positioned over cover in top-left */}
-                {caseStudy.tags && caseStudy.tags.length > 0 && (
-                  <div style={{
-                    position: 'absolute',
-                    top: designTokens.spacing.m,
-                    left: designTokens.spacing.m,
-                    zIndex: 1,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: designTokens.spacing.xs,
-                  }}>
-                    {caseStudy.tags.slice(0, 2).map((tag, index) => (
-                      <CaseStudyTag key={index} tag={tag} />
-                    ))}
-                  </div>
-                )}
-                
-                {/* Cover image */}
-                {caseStudy.cover ? (
-                  <Image
-                    src={caseStudy.cover.asset.url}
-                    alt={caseStudy.cover.alt || caseStudy.title}
-                    width={800}
-                    height={450}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  <div style={{
+                <iframe
+                  src="https://www.loom.com/embed/0483bdca78c94ab7bdf92bff5f03d19c?sid=6091c807-9301-4ace-a196-af8e30bd4ae2"
+                  style={{
                     width: '100%',
                     height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: designTokens.colors.grey500,
-                    color: designTokens.colors.white,
-                    ...designTokens.textStyles.body1,
-                  }}>
-                    No Cover Image
-                  </div>
-                )}
+                    border: 'none',
+                  }}
+                  allowFullScreen
+                />
               </div>
 
-              {/* Content */}
-              <div style={{
-                padding: designTokens.spacing.l,
-              }}>
-                {/* Title - H3 style */}
+                            {/* Loom Content */}
+              <div style={{ paddingTop: designTokens.spacing.l }}>
                 <h3 style={{
                   ...designTokens.textStyles.h3,
                   color: designTokens.colors.black,
-                  marginBottom: designTokens.spacing.l,
+                  marginBottom: designTokens.spacing.xs,
                   lineHeight: '1.2',
                 }}>
-                  {caseStudy.title}
+                  Ablai Rakhimbekov is a fractional product designer, narrative architect, and early-stage "chaos tamer" with 4+ years launching digital systems.
                 </h3>
-
-                {/* Summary - Body1 style */}
-                {caseStudy.summary && (
-                  <p style={{
-                    ...designTokens.textStyles.body1,
-                    color: designTokens.colors.grey800,
-                    marginBottom: designTokens.spacing.l,
-                    lineHeight: '1.4',
-                  }}>
-                    {caseStudy.summary}
-                  </p>
-                )}
-
-                {/* Metrics - displayed in a row, Body1 style */}
-                {caseStudy.metrics && caseStudy.metrics.length > 0 && (
-                  <div style={{
-                    display: 'flex',
-                    gap: designTokens.spacing.l,
-                    flexWrap: 'wrap',
-                  }}>
-                    {caseStudy.metrics.map((metric, index) => (
-                      <div key={index} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: designTokens.spacing.xs,
-                      }}>
-                        <span style={{
-                          ...designTokens.textStyles.body1,
-                          color: designTokens.colors.black,
-                          fontWeight: 600,
-                        }}>
-                          {metric.value}
-                        </span>
-                        <span style={{
-                          ...designTokens.textStyles.body1,
-                          color: designTokens.colors.grey800,
-                        }}>
-                          {metric.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: designTokens.spacing.xs,
+                  marginBottom: designTokens.spacing.xs,
+                }}>
+                  <CaseStudyTag tag="ux-ui-design" />
+                </div>
               </div>
             </div>
-          ))}
+
+            {/* First CMS case study */}
+            {caseStudies.length > 0 && (
+                             <div
+                 onClick={() => handleCaseStudyClick(caseStudies[0])}
+                 style={{
+                   overflow: 'hidden',
+                   cursor: 'pointer',
+                   position: 'relative',
+                 }}
+              >
+                {/* Cover Image */}
+                <div style={{
+                  position: 'relative',
+                  aspectRatio: '16 / 12',
+                  backgroundColor: designTokens.colors.grey500,
+                }}>
+                  <CaseStudyMedia caseStudy={caseStudies[0]} />
+                </div>
+
+                {/* Content below image */}
+                <div style={{ paddingTop: designTokens.spacing.l }}>
+                  {/* Title */}
+                  <h3 style={{
+                    ...designTokens.textStyles.h3,
+                    color: designTokens.colors.black,
+                    marginBottom: designTokens.spacing.xs,
+                    lineHeight: '1.2',
+                  }}>
+                    {caseStudies[0].title}
+                  </h3>
+
+                  {/* Summary under title */}
+                  {caseStudies[0].summary && (
+                    <p style={{
+                      ...designTokens.textStyles.tag,
+                      color: designTokens.colors.grey800,
+                      lineHeight: '1.4',
+                      margin: 0,
+                      marginBottom: designTokens.spacing.xs,
+                    }}>
+                      {caseStudies[0].summary}
+                    </p>
+                  )}
+
+                  {/* Tags under summary */}
+                  {caseStudies[0].tags && Array.isArray(caseStudies[0].tags) && caseStudies[0].tags.length > 0 && (
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: designTokens.spacing.xs,
+                    }}>
+                      {caseStudies[0].tags.slice(0, 2).map((tag, tagIndex) => (
+                        <CaseStudyTag key={tagIndex} tag={tag} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Remaining rows - 4 case studies per row */}
+          {caseStudies.length > 1 && (
+            <>
+              {Array.from({ length: Math.ceil((caseStudies.length - 1) / 4) }).map((_, rowIndex) => {
+                const startIndex = 1 + rowIndex * 4;
+                const endIndex = Math.min(startIndex + 4, caseStudies.length);
+                const rowCases = caseStudies.slice(startIndex, endIndex);
+                
+                return (
+                  <div key={`row-${rowIndex}`} style={{
+                    display: 'grid',
+                    gridTemplateColumns: isLargeScreen ? 'repeat(4, 1fr)' : '1fr',
+                    gap: designTokens.spacing.l,
+                  }}>
+                    {rowCases.map((caseStudy) => (
+                                          <div
+                      key={caseStudy._id}
+                      onClick={() => handleCaseStudyClick(caseStudy)}
+                      style={{
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        position: 'relative',
+                      }}
+                      >
+                        {/* Cover Image */}
+                        <div style={{
+                          position: 'relative',
+                          aspectRatio: '16 / 12',
+                          backgroundColor: designTokens.colors.grey500,
+                        }}>
+                                                    <CaseStudyMedia caseStudy={caseStudy} />
+                        </div>
+
+                                              {/* Content below image */}
+                      <div style={{ paddingTop: designTokens.spacing.l }}>
+                          {/* Title */}
+                          <h3 style={{
+                            ...designTokens.textStyles.h3,
+                            color: designTokens.colors.black,
+                            marginBottom: designTokens.spacing.xs,
+                            lineHeight: '1.2',
+                          }}>
+                            {caseStudy.title}
+                          </h3>
+
+                          {/* Summary under title */}
+                          {caseStudy.summary && (
+                            <p style={{
+                              ...designTokens.textStyles.tag,
+                              color: designTokens.colors.grey800,
+                              lineHeight: '1.4',
+                              margin: 0,
+                              marginBottom: designTokens.spacing.xs,
+                            }}>
+                              {caseStudy.summary}
+                            </p>
+                          )}
+
+                          {/* Tags under summary */}
+                          {caseStudy.tags && Array.isArray(caseStudy.tags) && caseStudy.tags.length > 0 && (
+                            <div style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: designTokens.spacing.xs,
+                            }}>
+                              {caseStudy.tags.slice(0, 2).map((tag, tagIndex) => (
+                                <CaseStudyTag key={tagIndex} tag={tag} />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {/* Fill empty slots in the last row if needed */}
+                    {rowCases.length < 4 && Array.from({ length: 4 - rowCases.length }).map((_, emptyIndex) => (
+                      <div key={`empty-${emptyIndex}`} style={{ visibility: 'hidden' }} />
+                    ))}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
 
         {/* Empty state */}

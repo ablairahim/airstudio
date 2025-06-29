@@ -26,9 +26,7 @@
   --spacing-xxl: 2.5rem;     /* 40px */
   --spacing-xxxl: 5rem;      /* 80px */
   
-  /* Border Radius */
-  --corners-s: 0.5rem;       /* 8px */
-  --corners-l: 1.25rem;      /* 20px */
+
   
   /* Typography */
   --font-family: 'Manrope', sans-serif;
@@ -175,7 +173,6 @@ a {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-grey-500);
-  border-radius: var(--corners-s);
 }
 
 ::-webkit-scrollbar-thumb:hover {

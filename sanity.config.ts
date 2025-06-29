@@ -22,10 +22,4 @@ export default defineConfig({
   },
   
   basePath: '/studio',
-  
-  // Улучшенные настройки для Next.js 15
-  studioHost: 'localhost',
-  
-  // Настройки для предотвращения проблем с SSR
-  unstable_useConfiguredBrowserWebSocket: false,
 }) 

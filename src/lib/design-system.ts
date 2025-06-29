@@ -72,7 +72,6 @@ export const buttonVariants = {
     backgroundColor: designTokens.colors.green,
     color: designTokens.colors.black,
     padding: `${designTokens.spacing.s} ${designTokens.spacing.l}`,
-    borderRadius: designTokens.corners.s,
     border: 'none',
     cursor: 'pointer' as const,
     transition: 'all 0.2s ease',
@@ -85,7 +84,6 @@ export const buttonVariants = {
     backgroundColor: designTokens.colors.dun,
     color: designTokens.colors.black,
     padding: `${designTokens.spacing.s} ${designTokens.spacing.l}`,
-    borderRadius: designTokens.corners.s,
     border: 'none',
     cursor: 'pointer' as const,
     transition: 'all 0.2s ease',
@@ -98,7 +96,6 @@ export const buttonVariants = {
     backgroundColor: 'transparent',
     color: designTokens.colors.grey800,
     padding: `${designTokens.spacing.s} ${designTokens.spacing.l}`,
-    borderRadius: designTokens.corners.s,
     border: `2px solid ${designTokens.colors.grey500}`,
     cursor: 'pointer' as const,
     transition: 'all 0.2s ease',
@@ -111,7 +108,6 @@ export const buttonVariants = {
     backgroundColor: 'transparent',
     color: designTokens.colors.grey800,
     padding: `${designTokens.spacing.s} ${designTokens.spacing.l}`,
-    borderRadius: designTokens.corners.s,
     border: 'none',
     cursor: 'pointer' as const,
     transition: 'all 0.2s ease',
@@ -122,29 +118,7 @@ export const buttonVariants = {
   },
 } as const
 
-// Card Styles as CSS-in-JS objects
-export const cardStyles = {
-  base: {
-    backgroundColor: designTokens.colors.white,
-    borderRadius: designTokens.corners.l,
-    padding: designTokens.spacing.l,
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-  },
-  elevated: {
-    backgroundColor: designTokens.colors.white,
-    borderRadius: designTokens.corners.l,
-    padding: designTokens.spacing.xl,
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-  },
-  outlined: {
-    backgroundColor: designTokens.colors.white,
-    borderRadius: designTokens.corners.l,
-    padding: designTokens.spacing.l,
-    border: `1px solid ${designTokens.colors.grey100}`,
-  },
-} as const
-
-// Layout Utilities as CSS-in-JS objects
+// Layout helpers
 export const layout = {
   container: {
     maxWidth: '1200px',
@@ -154,15 +128,22 @@ export const layout = {
   section: {
     padding: `${designTokens.spacing.xxxl} 0`,
   },
-  grid: {
-    display: 'grid' as const,
-    gap: designTokens.spacing.l,
+  card: {
+    backgroundColor: designTokens.colors.white,
+    padding: designTokens.spacing.l,
+    
   },
-  flex: {
-    display: 'flex' as const,
-    gap: designTokens.spacing.m,
+  modal: {
+    backgroundColor: designTokens.colors.white,
+    padding: designTokens.spacing.l,
+    
   },
 } as const
+
+// Export individual design tokens for convenience
+export const colors = designTokens.colors
+export const spacing = designTokens.spacing
+export const textStyles = designTokens.textStyles
 
 // Color Utilities
 export const colorUtils = {
@@ -177,10 +158,7 @@ export const colorUtils = {
 } as const
 
 // Spacing Utilities
-export const spacing = designTokens.spacing
-
-// Border Radius Utilities
-export const corners = designTokens.corners
+export const spacingUtils = designTokens.spacing
 
 // Animation utilities
 export const animations = {
@@ -212,4 +190,20 @@ export function createComponentStyles(baseStyles: string, variants: Record<strin
     const variantStyles = variants[variant] || variants.default
     return cn(baseStyles, variantStyles, additionalClasses)
   }
-} 
+}
+
+// Design System Configuration
+export const designSystem = {
+  // ... existing design system ...
+}
+
+// Global settings for performance
+export const siteSettings = {
+  // Set to false to freeze cover videos on main page (WorkSection)
+  // Change to true to enable autoplay for cover videos
+  ENABLE_COVER_VIDEO_AUTOPLAY: false,
+  
+  // Set to false to freeze all content videos inside case studies
+  // Change to true to enable autoplay for content videos
+  ENABLE_CONTENT_VIDEO_AUTOPLAY: true,
+} as const 
