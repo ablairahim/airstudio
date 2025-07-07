@@ -1493,8 +1493,9 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(32, 34, 34, 0.55)', // мягкий полупрозрачный серо-чёрный
+      backdropFilter: 'blur(14px) saturate(120%)',
+      WebkitBackdropFilter: 'blur(14px) saturate(120%)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'flex-start',
