@@ -1590,11 +1590,8 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
           <button
             onClick={onClose}
             style={{
-              position: 'absolute',
-              bottom: '24px',
-              left: '50%',
-              transform: 'translateX(-50%)',
               display: 'flex',
+              margin: '24px auto 0',
               alignItems: 'center',
               gap: '8px',
               backgroundColor: designTokens.colors.white,
