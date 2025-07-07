@@ -113,7 +113,8 @@ function processMarkdownLinks(text: string): React.ReactNode[] {
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          ...heroTextStyle,
+          ...designTokens.textStyles.body1,
+          color: designTokens.colors.white,
           textDecoration: 'underline',
           textUnderlineOffset: '2px',
           display: 'inline-flex',
@@ -280,7 +281,7 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
       borderRadius: '16px',
     }}>
       <p style={{
-        ...heroTextStyle,
+        ...designTokens.textStyles.body1,
         margin: 0,
         marginBottom: author ? designTokens.spacing.s : 0,
       }}>
@@ -288,7 +289,7 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
       </p>
       {author && (
         <p style={{
-          ...heroTextStyle,
+          ...designTokens.textStyles.body1,
           opacity: 0.8,
           fontWeight: 600,
           fontSize: '0.875rem',
@@ -328,6 +329,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
           target="_blank"
           rel="noopener noreferrer"
           style={{
+            ...designTokens.textStyles.body1,
             color: designTokens.colors.white,
             textDecoration: 'underline',
             textUnderlineOffset: '2px',
@@ -473,7 +475,8 @@ function ParagraphBlock({ text }: { text?: any[] }) {
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            ...heroTextStyle,
+            ...designTokens.textStyles.body1,
+            color: designTokens.colors.white,
             textDecoration: 'underline',
             textUnderlineOffset: '2px',
           }}
@@ -530,11 +533,7 @@ function InlineLink({ text, url }: { text: string; url: string }) {
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        fontFamily: 'Poppins, sans-serif',
-        fontSize: '20px',
-        fontWeight: 400,
-        lineHeight: '110%',
-        letterSpacing: '-0.02em',
+        ...designTokens.textStyles.body1,
         color: designTokens.colors.white,
         textDecoration: 'none',
         display: 'inline-flex',
@@ -779,7 +778,8 @@ function TextSectionWithGrid({
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          ...heroTextStyle,
+          ...designTokens.textStyles.body1,
+          color: designTokens.colors.white,
           textDecoration: 'none',
           display: 'inline-flex',
           alignItems: 'center',
