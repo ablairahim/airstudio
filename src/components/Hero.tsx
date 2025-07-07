@@ -424,7 +424,7 @@ export default function Hero() {
                 height: '280px', // Наследуем высоту первой карточки
                 backgroundColor: card.color,
                 borderRadius: '20px',
-                border: '1px solid #101010',
+                border: `0.5px solid ${designTokens.colors.grey500}`,
                 zIndex: 5,
                 overflow: 'hidden', // Для видео контента
               }}
