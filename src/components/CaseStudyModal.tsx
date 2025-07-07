@@ -304,7 +304,7 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
 // Общий стиль, совпадающий с абзацем в Hero
 const heroTextStyle = {
   fontFamily: 'Poppins, sans-serif',
-  fontSize: '20px',
+  fontSize: '18px',
   fontWeight: 500,
   lineHeight: '110%',
   letterSpacing: '-0.02em',
