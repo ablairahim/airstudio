@@ -1533,7 +1533,7 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
         </button>
 
         <h1 style={{ 
-          fontFamily: 'Poppins, sans-serif',
+          fontFamily: 'var(--font-funnel-display), sans-serif',
           fontSize: '32px',
           fontWeight: 600,
           lineHeight: '110%',
