@@ -307,7 +307,7 @@ export function Navbar() {
                   Ошибка загрузки данных
                 </div>
               ) : displayCaseStudy ? (
-                <CaseStudyModal caseStudy={displayCaseStudy} onClose={toggleModal} />
+                <CaseStudyModal caseStudy={displayCaseStudy as any} onClose={toggleModal} />
               ) : (
                 <div style={{
                   display: 'flex',
