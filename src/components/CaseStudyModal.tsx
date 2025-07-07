@@ -113,25 +113,12 @@ function processMarkdownLinks(text: string): React.ReactNode[] {
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          ...designTokens.textStyles.modalApproachText,
-          color: designTokens.colors.grey800,
-          textDecoration: 'none',
+          ...heroTextStyle,
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          border: `1px solid ${designTokens.colors.grey800}`,
-          borderRadius: '4px',
-          padding: '0 4px',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          verticalAlign: 'baseline',
-          lineHeight: 'inherit',
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
         <span>{linkText}</span>
@@ -286,32 +273,48 @@ function QuoteCallout({ text, author, authorTitle }: { text: string; author?: st
 function TestimonialCallout({ text, author, authorTitle }: { text: string; author?: string; authorTitle?: string }) {
   return (
     <div style={{
-      backgroundColor: designTokens.colors.grey100,
-      
+      backgroundColor: designTokens.colors.grey800,
+       
       padding: designTokens.spacing.l,
       marginBottom: designTokens.spacing.xl,
+      borderRadius: '16px',
     }}>
       <p style={{
-        ...designTokens.textStyles.body1,
-        color: designTokens.colors.black,
+        ...heroTextStyle,
         margin: 0,
         marginBottom: author ? designTokens.spacing.s : 0,
       }}>
         {text}
       </p>
       {author && (
-        <div style={{
-          ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
-          fontSize: '0.875rem',
+        <p style={{
+          ...heroTextStyle,
+          opacity: 0.8,
           fontWeight: 600,
+          fontSize: '0.875rem',
+          margin: 0,
         }}>
           {author}{authorTitle ? `, ${authorTitle}` : ''}
-        </div>
+        </p>
       )}
     </div>
   );
 }
+
+// Общий стиль, совпадающий с абзацем в Hero
+const heroTextStyle = {
+  fontFamily: 'var(--font-funnel-display), sans-serif',
+  fontSize: '20px',
+  fontWeight: 400,
+  lineHeight: '110%',
+  letterSpacing: '-0.03em',
+  color: designTokens.colors.white,
+} as const;
+
+const heroHeadingStyle = {
+  ...heroTextStyle,
+  fontWeight: 600,
+} as const;
 
 // Компонент для текстовых секций с rich text поддержкой
 function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
@@ -376,12 +379,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
     block: {
       normal: ({ children }: any) => (
         <p style={{
-          fontSize: '1.5rem',       // 24px
-          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
-          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
-          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
-          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          ...heroTextStyle,
           marginBottom: designTokens.spacing.m,
         }}>
           {children}
@@ -389,8 +387,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       h1: ({ children }: any) => (
         <h2 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.m,
           marginTop: designTokens.spacing.l,
         }}>
@@ -399,8 +396,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       h2: ({ children }: any) => (
         <h3 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -409,8 +405,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       h3: ({ children }: any) => (
         <h4 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -419,14 +414,9 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       blockquote: ({ children }: any) => (
         <blockquote style={{
-          fontSize: '1.5rem',       // 24px
-          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
-          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
-          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
-          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          ...heroTextStyle,
           fontStyle: 'italic',
-          borderLeft: `4px solid ${designTokens.colors.grey500}`,
+          borderLeft: `4px solid ${designTokens.colors.white}`,
           paddingLeft: designTokens.spacing.m,
           marginLeft: 0,
           marginBottom: designTokens.spacing.m,
@@ -438,12 +428,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
     list: {
       bullet: ({ children }: any) => (
         <ul style={{
-          fontSize: '1.5rem',       // 24px
-          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
-          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
-          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
-          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          ...heroTextStyle,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
         }}>
@@ -452,12 +437,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       number: ({ children }: any) => (
         <ol style={{
-          fontSize: '1.5rem',       // 24px
-          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
-          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
-          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
-          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          ...heroTextStyle,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
         }}>
@@ -468,6 +448,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
     listItem: {
       bullet: ({ children }: any) => (
         <li style={{
+          ...heroTextStyle,
           marginBottom: designTokens.spacing.xs,
         }}>
           {children}
@@ -475,6 +456,7 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
       number: ({ children }: any) => (
         <li style={{
+          ...heroTextStyle,
           marginBottom: designTokens.spacing.xs,
         }}>
           {children}
@@ -482,48 +464,27 @@ function ParagraphBlock({ text }: { text?: any[] }) {
       ),
     },
     marks: {
-      strong: ({ children }: any) => (
-        <strong style={{ fontWeight: 600 }}>{children}</strong>
-      ),
-      em: ({ children }: any) => (
-        <em style={{ fontStyle: 'italic' }}>{children}</em>
-      ),
-      code: ({ children }: any) => (
-        <code style={{
-          backgroundColor: designTokens.colors.grey100,
-          padding: '2px 4px',
-          borderRadius: '3px',
-          fontFamily: 'monospace',
-          fontSize: '0.9em',
-        }}>
-          {children}
-        </code>
-      ),
       link: ({ children, value }: any) => (
         <Link
           href={value.href}
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            color: designTokens.colors.black,
+            ...heroTextStyle,
             textDecoration: 'underline',
+            textUnderlineOffset: '2px',
           }}
         >
           {children}
         </Link>
       ),
     },
-    unknownType: ({ value }: any) => {
-      return null;
-    },
-  }
-
-  const cleanedText = cleanBlockContent(text);
+  } as const;
 
   return (
     <div style={{ marginBottom: designTokens.spacing.xl }}>
       <PortableText 
-        value={cleanedText}
+        value={cleanBlockContent(text)}
         components={portableTextComponents}
       />
     </div>
@@ -624,7 +585,7 @@ function InlineFactsBlock({ client, year, role, links }: {
       {client && (
         <div style={{
           ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
         }}>
           <span style={{ fontWeight: 500 }}>Client:</span> {client}
         </div>
@@ -632,7 +593,7 @@ function InlineFactsBlock({ client, year, role, links }: {
       {year && (
         <div style={{
           ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
         }}>
           <span style={{ fontWeight: 500 }}>Year:</span> {year}
         </div>
@@ -640,7 +601,7 @@ function InlineFactsBlock({ client, year, role, links }: {
       {role && (
         <div style={{
           ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
         }}>
           <span style={{ fontWeight: 500 }}>Role:</span> {role}
         </div>
@@ -692,8 +653,7 @@ function TextSectionWithGrid({
         if (typeof children === 'string') {
           return (
             <p style={{
-              ...designTokens.textStyles.modalApproachText,
-              color: designTokens.colors.grey800,
+              ...heroTextStyle,
               marginBottom: designTokens.spacing.m,
             }}>
               {processMarkdownLinks(children)}
@@ -711,8 +671,7 @@ function TextSectionWithGrid({
 
         return (
           <p style={{
-            ...designTokens.textStyles.modalApproachText,
-            color: designTokens.colors.grey800,
+            ...heroTextStyle,
             marginBottom: designTokens.spacing.m,
           }}>
             {processedChildren}
@@ -721,8 +680,7 @@ function TextSectionWithGrid({
       },
       h1: ({ children }: any) => (
         <h2 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.m,
           marginTop: designTokens.spacing.l,
         }}>
@@ -731,8 +689,7 @@ function TextSectionWithGrid({
       ),
       h2: ({ children }: any) => (
         <h3 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -741,8 +698,7 @@ function TextSectionWithGrid({
       ),
       h3: ({ children }: any) => (
         <h4 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          ...heroHeadingStyle,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -753,8 +709,7 @@ function TextSectionWithGrid({
          list: {
        bullet: ({ children }: any) => (
          <ul style={{
-           ...designTokens.textStyles.modalApproachText,
-           color: designTokens.colors.grey800,
+           ...heroTextStyle,
            marginBottom: designTokens.spacing.m,
            paddingLeft: designTokens.spacing.l,
          }}>
@@ -763,8 +718,7 @@ function TextSectionWithGrid({
        ),
        number: ({ children }: any) => (
          <ol style={{
-           ...designTokens.textStyles.modalApproachText,
-           color: designTokens.colors.grey800,
+           ...heroTextStyle,
            marginBottom: designTokens.spacing.m,
            paddingLeft: designTokens.spacing.l,
          }}>
@@ -783,8 +737,7 @@ function TextSectionWithGrid({
 
          return (
            <li style={{
-             ...designTokens.textStyles.modalApproachText,
-             color: designTokens.colors.grey800,
+             ...heroTextStyle,
              marginBottom: designTokens.spacing.xs,
            }}>
              {processedChildren}
@@ -801,8 +754,7 @@ function TextSectionWithGrid({
 
          return (
            <li style={{
-             ...designTokens.textStyles.modalApproachText,
-             color: designTokens.colors.grey800,
+             ...heroTextStyle,
              marginBottom: designTokens.spacing.xs,
            }}>
              {processedChildren}
@@ -824,13 +776,12 @@ function TextSectionWithGrid({
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          ...designTokens.textStyles.modalApproachText,
-          color: designTokens.colors.grey800,
+          ...heroTextStyle,
           textDecoration: 'none',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          border: `1px solid ${designTokens.colors.grey800}`,
+          border: `1px solid ${designTokens.colors.white}`,
           borderRadius: '4px',
           padding: '0 4px',
           cursor: 'pointer',
@@ -839,7 +790,7 @@ function TextSectionWithGrid({
           lineHeight: 'inherit',
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
         }}
         onMouseOut={(e) => {
           e.currentTarget.style.backgroundColor = 'transparent';
@@ -885,8 +836,7 @@ function TextSectionWithGrid({
         <div>
           {heading && (
             <h2 style={{
-              ...designTokens.textStyles.modalCaseHeading,
-              color: designTokens.colors.black,
+              ...heroHeadingStyle,
               marginBottom: designTokens.spacing.m,
               marginTop: 0,
             }}>
@@ -894,8 +844,7 @@ function TextSectionWithGrid({
             </h2>
           )}
           <div style={{
-            ...designTokens.textStyles.modalApproachText,
-            color: designTokens.colors.grey800,
+            ...heroTextStyle,
           }}>
             <PortableText 
               value={cleanBlockContent(text)} 
@@ -934,8 +883,7 @@ function TextSectionWithGrid({
       <div style={{ gridColumn: '3 / 5' }}>
         {heading && (
           <h2 style={{
-            ...designTokens.textStyles.modalCaseHeading,
-            color: designTokens.colors.black,
+            ...heroHeadingStyle,
             marginBottom: designTokens.spacing.m,
             marginTop: 0,
           }}>
@@ -943,8 +891,7 @@ function TextSectionWithGrid({
           </h2>
         )}
                  <div style={{
-           ...designTokens.textStyles.modalApproachText,
-           color: designTokens.colors.grey800,
+           ...heroTextStyle,
          }}>
            <PortableText 
              value={cleanBlockContent(text)} 
@@ -984,7 +931,7 @@ function ParagraphBlockWithGrid({
               fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
               fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
               letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-              color: designTokens.colors.grey800,
+              color: designTokens.colors.white,
               marginBottom: designTokens.spacing.m,
             }}>
               {processMarkdownLinks(children)}
@@ -1007,7 +954,7 @@ function ParagraphBlockWithGrid({
             fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
             fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-            color: designTokens.colors.grey800,
+            color: designTokens.colors.white,
             marginBottom: designTokens.spacing.m,
           }}>
             {processedChildren}
@@ -1017,7 +964,7 @@ function ParagraphBlockWithGrid({
       h1: ({ children }: any) => (
         <h2 style={{
           ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          color: designTokens.colors.white,
           marginBottom: designTokens.spacing.m,
           marginTop: designTokens.spacing.l,
         }}>
@@ -1027,7 +974,7 @@ function ParagraphBlockWithGrid({
       h2: ({ children }: any) => (
         <h3 style={{
           ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          color: designTokens.colors.white,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -1037,7 +984,7 @@ function ParagraphBlockWithGrid({
       h3: ({ children }: any) => (
         <h4 style={{
           ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+          color: designTokens.colors.white,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
         }}>
@@ -1053,7 +1000,7 @@ function ParagraphBlockWithGrid({
           fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
           fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
           letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
         }}>
@@ -1067,7 +1014,7 @@ function ParagraphBlockWithGrid({
           fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
           fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
           letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
         }}>
@@ -1091,7 +1038,7 @@ function ParagraphBlockWithGrid({
             fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
             fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-            color: designTokens.colors.grey800,
+            color: designTokens.colors.white,
             marginBottom: designTokens.spacing.xs,
           }}>
             {processedChildren}
@@ -1113,7 +1060,7 @@ function ParagraphBlockWithGrid({
             fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
             fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-            color: designTokens.colors.grey800,
+            color: designTokens.colors.white,
             marginBottom: designTokens.spacing.xs,
           }}>
             {processedChildren}
@@ -1140,12 +1087,12 @@ function ParagraphBlockWithGrid({
           fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
           fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
           letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
           textDecoration: 'none',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          border: `1px solid ${designTokens.colors.grey800}`,
+          border: `1px solid ${designTokens.colors.white}`,
           borderRadius: '4px',
           padding: '0 4px',
           cursor: 'pointer',
@@ -1153,7 +1100,7 @@ function ParagraphBlockWithGrid({
           verticalAlign: 'baseline',
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
         }}
         onMouseOut={(e) => {
           e.currentTarget.style.backgroundColor = 'transparent';
@@ -1202,7 +1149,7 @@ function ParagraphBlockWithGrid({
           fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
           fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
           letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
         }}>
           <PortableText 
             value={cleanBlockContent(text)} 
@@ -1244,7 +1191,7 @@ function ParagraphBlockWithGrid({
           fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
           fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
           letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
-          color: designTokens.colors.grey800,
+          color: designTokens.colors.white,
         }}>
           <PortableText 
             value={cleanBlockContent(text)} 
