@@ -315,6 +315,25 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
 
 // Компонент для текстовых секций с rich text поддержкой
 function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
+  const portableTextComponents = {
+    marks: {
+      link: ({ children, value }: any) => (
+        <Link
+          href={value.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: designTokens.colors.white,
+            textDecoration: 'underline',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {children}
+        </Link>
+      ),
+    },
+  };
+
   return (
     <div style={{
       marginBottom: designTokens.spacing.xl,
@@ -342,7 +361,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
           letterSpacing: '-0.03em',
           color: designTokens.colors.white,
         }}>
-          <PortableText value={cleanBlockContent(text)} />
+          <PortableText value={cleanBlockContent(text)} components={portableTextComponents} />
         </div>
       )}
     </div>
@@ -547,20 +566,24 @@ function InlineLink({ text, url }: { text: string; url: string }) {
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        ...designTokens.textStyles.body1,
-        color: designTokens.colors.grey800,
+        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontSize: '20px',
+        fontWeight: 400,
+        lineHeight: '110%',
+        letterSpacing: '-0.03em',
+        color: designTokens.colors.white,
         textDecoration: 'none',
         display: 'inline-flex',
         alignItems: 'center',
         gap: designTokens.spacing.xs,
-        border: `1px solid ${designTokens.colors.grey800}`,
+        border: `1px solid ${designTokens.colors.white}`,
         borderRadius: '4px',
-        padding: '0 4px', // Боковые паддинги 4px
+        padding: '0 4px',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
       }}
       onMouseOver={(e) => {
-        e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
       }}
       onMouseOut={(e) => {
         e.currentTarget.style.backgroundColor = 'transparent';
