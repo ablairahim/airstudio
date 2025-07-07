@@ -4,25 +4,15 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PortableText } from '@portabletext/react';
-import { ContentBlock } from '../lib/sanity';
-import { CaseStudy } from '../types';
+import { CaseStudy, ContentBlock } from '../lib/sanity';
 import { designTokens } from '../lib/design-tokens';
 import { siteSettings } from '@/lib/design-system';
 
+// Utility: build Sanity CDN URL with width & auto=format
+const buildSanityImage = (url: string, width = 1600) => `${url}?w=${width}&auto=format`;
+
 // Компонент для отображения cover media (видео или изображение)
 function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
-  const [isMobile, setIsMobile] = React.useState(false);
-  
-  React.useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
   // Видео имеет приоритет над изображением
   if (caseStudy.coverVideo?.asset?.url) {
     return (
@@ -30,7 +20,7 @@ function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
         marginBottom: '2rem', // 32px
         width: '100%',
         overflow: 'hidden',
-        borderRadius: isMobile ? '0' : '16px',
+        borderRadius: '16px',
       }}>
         <video
           src={caseStudy.coverVideo.asset.url}
@@ -56,13 +46,13 @@ function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
       <div style={{
         marginBottom: '2rem', // 32px
         overflow: 'hidden',
-        borderRadius: isMobile ? '0' : '16px',
+        borderRadius: '16px',
       }}>
         <Image
-          src={caseStudy.cover.asset.url}
+          src={buildSanityImage(caseStudy.cover.asset.url)}
           alt={caseStudy.cover.alt || caseStudy.title}
-          width={800}
-          height={600}
+          width={1600}
+          height={1000}
           style={{
             width: '100%',
             height: 'auto',
@@ -1370,29 +1360,17 @@ function LoomBlock({ url }: { url: string }) {
 
 // Компонент для изображений
 function ImageBlock({ image }: { image: { asset: { url: string }; alt?: string } }) {
-  const [isMobile, setIsMobile] = React.useState(false);
-  
-  React.useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
   return (
     <div style={{
       marginBottom: designTokens.spacing.xl,
       overflow: 'hidden',
-      borderRadius: isMobile ? '0' : '16px',
+      borderRadius: '16px',
     }}>
       <Image
-        src={image.asset.url}
+        src={buildSanityImage(image.asset.url)}
         alt={image.alt || 'Case study image'}
-        width={800}
-        height={600}
+        width={1600}
+        height={1000}
         style={{
           width: '100%',
           height: 'auto',
@@ -1448,10 +1426,10 @@ function BlurredImageBlock({ image, tooltipText }: {
       onMouseMove={!isMobile ? handleMouseMove : undefined}
     >
       <Image
-        src={image.asset.url}
+        src={buildSanityImage(image.asset.url)}
         alt={image.alt || 'Case study image (NDA protected)'}
-        width={800}
-        height={600}
+        width={1600}
+        height={1000}
         style={{
           width: '100%',
           height: 'auto',
@@ -1494,18 +1472,6 @@ function VideoBlock({ video, alt, poster }: {
   alt?: string; 
   poster?: { asset: { url: string }; alt?: string } 
 }) {
-  const [isMobile, setIsMobile] = React.useState(false);
-  
-  React.useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
   // Проверяем, что видео и его asset существуют
   if (!video || !video.asset || !video.asset.url) {
     return null;
@@ -1517,7 +1483,7 @@ function VideoBlock({ video, alt, poster }: {
       width: '100%',
       overflow: 'hidden',
       backgroundColor: designTokens.colors.grey500,
-      borderRadius: isMobile ? '0' : '16px',
+      borderRadius: '16px',
     }}>
       <video
         src={video.asset.url}
@@ -1615,8 +1581,8 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       return (
         <TextSectionWithGrid
           key={index}
-          heading={block.heading}
-          text={block.text}
+          heading={(block as any).heading}
+          text={(block as any).text}
           showFacts={isFirstTextBlock && !!factsData}
           factsData={factsData}
           linksData={isFirstTextBlock ? linksData : undefined}
@@ -1630,7 +1596,7 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       return (
         <ParagraphBlockWithGrid
           key={index}
-          text={block.text}
+          text={(block as any).text}
           showFacts={isFirstTextBlock && !!factsData}
           factsData={factsData}
           linksData={isFirstTextBlock ? linksData : undefined}
