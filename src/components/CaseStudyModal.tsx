@@ -21,6 +21,7 @@ function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
       }}>
         <video
           src={caseStudy.coverVideo.asset.url}
+          controls={!siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY}
           style={{
             width: '100%',
             height: 'auto',
@@ -1483,6 +1484,7 @@ function VideoBlock({ video, alt, poster }: {
     }}>
       <video
         src={video.asset.url}
+        controls={!siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY}
         poster={poster?.asset?.url}
         autoPlay={siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY}
         muted
