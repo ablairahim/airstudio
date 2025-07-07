@@ -171,10 +171,10 @@ interface CaseStudyModalProps {
 function MetricsCallout({ metrics }: { metrics: Array<{ value: string; label: string }> }) {
   return (
     <div style={{
-      backgroundColor: designTokens.colors.green,
-      
+      backgroundColor: designTokens.colors.grey800,
       padding: designTokens.spacing.l,
       marginBottom: designTokens.spacing.xl,
+      borderRadius: '16px',
     }}>
       <div style={{
         display: 'flex',
@@ -189,15 +189,23 @@ function MetricsCallout({ metrics }: { metrics: Array<{ value: string; label: st
             minWidth: '120px',
           }}>
             <div style={{
-              ...designTokens.textStyles.h2,
-              color: designTokens.colors.black,
+              fontFamily: 'var(--font-funnel-display), sans-serif',
+              fontSize: '20px',
+              fontWeight: 600,
+              lineHeight: '110%',
+              letterSpacing: '-0.03em',
+              color: designTokens.colors.white,
               marginBottom: designTokens.spacing.xs,
             }}>
               {metric.value}
             </div>
             <div style={{
-              ...designTokens.textStyles.body1,
-              color: designTokens.colors.black,
+              fontFamily: 'var(--font-funnel-display), sans-serif',
+              fontSize: '20px',
+              fontWeight: 400,
+              lineHeight: '110%',
+              letterSpacing: '-0.03em',
+              color: designTokens.colors.white,
               opacity: 0.8,
             }}>
               {metric.label}
@@ -213,14 +221,18 @@ function MetricsCallout({ metrics }: { metrics: Array<{ value: string; label: st
 function PromptCallout({ text }: { text: string }) {
   return (
     <div style={{
-      backgroundColor: designTokens.colors.grey100,
-      
+      backgroundColor: designTokens.colors.grey800,
       padding: designTokens.spacing.l,
       marginBottom: designTokens.spacing.xl,
+      borderRadius: '16px',
     }}>
       <p style={{
-        ...designTokens.textStyles.prompt,
-        color: designTokens.colors.black,
+        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontSize: '20px',
+        fontWeight: 400,
+        lineHeight: '110%',
+        letterSpacing: '-0.03em',
+        color: designTokens.colors.white,
         margin: 0,
       }}>
         {text}
@@ -233,15 +245,19 @@ function PromptCallout({ text }: { text: string }) {
 function QuoteCallout({ text, author, authorTitle }: { text: string; author?: string; authorTitle?: string }) {
   return (
     <div style={{
-      backgroundColor: designTokens.colors.grey100,
-      
+      backgroundColor: designTokens.colors.grey800,
       padding: designTokens.spacing.l,
       marginBottom: designTokens.spacing.xl,
-      borderLeft: `4px solid ${designTokens.colors.black}`,
+      borderRadius: '16px',
+      borderLeft: `4px solid ${designTokens.colors.white}`,
     }}>
       <p style={{
-        ...designTokens.textStyles.body1,
-        color: designTokens.colors.black,
+        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontSize: '20px',
+        fontWeight: 400,
+        lineHeight: '110%',
+        letterSpacing: '-0.03em',
+        color: designTokens.colors.white,
         margin: 0,
         marginBottom: author ? designTokens.spacing.s : 0,
         fontStyle: 'italic',
@@ -249,13 +265,18 @@ function QuoteCallout({ text, author, authorTitle }: { text: string; author?: st
         "{text}"
       </p>
       {author && (
-        <div style={{
-          ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
-          fontSize: '0.875rem',
+        <p style={{
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '20px',
+          fontWeight: 400,
+          lineHeight: '110%',
+          letterSpacing: '-0.03em',
+          color: designTokens.colors.white,
+          opacity: 0.8,
+          margin: 0,
         }}>
           — {author}{authorTitle ? `, ${authorTitle}` : ''}
-        </div>
+        </p>
       )}
     </div>
   );
@@ -294,156 +315,36 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
 
 // Компонент для текстовых секций с rich text поддержкой
 function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
-  if (!text) return null;
-
-  const portableTextComponents = {
-    block: {
-      normal: ({ children }: any) => (
-        <p style={{
-          ...designTokens.textStyles.modalCaseText,
-          color: designTokens.colors.grey800,
-          marginBottom: designTokens.spacing.m,
-        }}>
-          {children}
-        </p>
-      ),
-      h1: ({ children }: any) => (
-        <h2 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
-          marginBottom: designTokens.spacing.m,
-          marginTop: designTokens.spacing.l,
-        }}>
-          {children}
-        </h2>
-      ),
-      h2: ({ children }: any) => (
-        <h3 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
-          marginBottom: designTokens.spacing.s,
-          marginTop: designTokens.spacing.m,
-        }}>
-          {children}
-        </h3>
-      ),
-      h3: ({ children }: any) => (
-        <h4 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
-          marginBottom: designTokens.spacing.s,
-          marginTop: designTokens.spacing.m,
-        }}>
-          {children}
-        </h4>
-      ),
-      blockquote: ({ children }: any) => (
-        <blockquote style={{
-          ...designTokens.textStyles.modalCaseTextCompact,
-          color: designTokens.colors.grey800,
-          fontStyle: 'italic',
-          borderLeft: `4px solid ${designTokens.colors.grey500}`,
-          paddingLeft: designTokens.spacing.m,
-          marginLeft: 0,
-          marginBottom: designTokens.spacing.m,
-        }}>
-          {children}
-        </blockquote>
-      ),
-    },
-    list: {
-      bullet: ({ children }: any) => (
-        <ul style={{
-          ...designTokens.textStyles.modalCaseTextCompact,
-          color: designTokens.colors.grey800,
-          marginBottom: designTokens.spacing.m,
-          paddingLeft: designTokens.spacing.l,
-        }}>
-          {children}
-        </ul>
-      ),
-      number: ({ children }: any) => (
-        <ol style={{
-          ...designTokens.textStyles.modalCaseTextCompact,
-          color: designTokens.colors.grey800,
-          marginBottom: designTokens.spacing.m,
-          paddingLeft: designTokens.spacing.l,
-        }}>
-          {children}
-        </ol>
-      ),
-    },
-    listItem: {
-      bullet: ({ children }: any) => (
-        <li style={{
-          marginBottom: designTokens.spacing.xs,
-        }}>
-          {children}
-        </li>
-      ),
-      number: ({ children }: any) => (
-        <li style={{
-          marginBottom: designTokens.spacing.xs,
-        }}>
-          {children}
-        </li>
-      ),
-    },
-    marks: {
-      strong: ({ children }: any) => (
-        <strong style={{ fontWeight: 600 }}>{children}</strong>
-      ),
-      em: ({ children }: any) => (
-        <em style={{ fontStyle: 'italic' }}>{children}</em>
-      ),
-      code: ({ children }: any) => (
-        <code style={{
-          backgroundColor: designTokens.colors.grey100,
-          padding: '2px 4px',
-          borderRadius: '3px',
-          fontFamily: 'monospace',
-          fontSize: '0.9em',
-        }}>
-          {children}
-        </code>
-      ),
-      link: ({ children, value }: any) => (
-        <Link
-          href={value.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: designTokens.colors.black,
-            textDecoration: 'underline',
-          }}
-        >
-          {children}
-        </Link>
-      ),
-    },
-    unknownType: ({ value }: any) => {
-
-      return null;
-    },
-  }
-
-  const cleanedText = cleanBlockContent(text);
-
   return (
-    <div style={{ marginBottom: designTokens.spacing.xl }}>
+    <div style={{
+      marginBottom: designTokens.spacing.xl,
+    }}>
       {heading && (
-        <h3 style={{
-          ...designTokens.textStyles.modalCaseHeading,
-          color: designTokens.colors.black,
+        <h2 style={{
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '20px',
+          fontWeight: 600,
+          lineHeight: '110%',
+          letterSpacing: '-0.03em',
+          color: designTokens.colors.white,
+          marginTop: 0,
           marginBottom: designTokens.spacing.m,
         }}>
           {heading}
-        </h3>
+        </h2>
       )}
-      <PortableText 
-        value={cleanedText}
-        components={portableTextComponents}
-      />
+      {text && (
+        <div style={{
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '20px',
+          fontWeight: 400,
+          lineHeight: '110%',
+          letterSpacing: '-0.03em',
+          color: designTokens.colors.white,
+        }}>
+          <PortableText value={cleanBlockContent(text)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -1616,91 +1517,93 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
   };
 
   return (
-    <div 
-      style={{
-        fontFamily: designTokens.textStyles.body1.fontFamily,
-        fontSize: designTokens.textStyles.body1.fontSize,
-        fontWeight: designTokens.textStyles.body1.fontWeight,
-        letterSpacing: designTokens.textStyles.body1.letterSpacing,
-        lineHeight: designTokens.textStyles.body1.lineHeight,
-        color: designTokens.colors.grey800,
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      overflowY: 'auto',
+      zIndex: 1000,
+      padding: isMobile ? '16px' : '32px',
+    }}>
+      <div style={{
+        backgroundColor: designTokens.colors.black,
+        borderRadius: '24px',
+        padding: isMobile ? '24px' : '48px',
+        maxWidth: '1200px',
+        width: '100%',
         position: 'relative',
-      }}
-    >
-      {/* Кнопка закрытия в правом верхнем углу */}
-      <button
-        onClick={onClose}
-        style={{
-          position: 'fixed',
-          top: '24px',
-          right: '24px',
-          width: isMobile ? '32px' : '48px',
-          height: isMobile ? '32px' : '48px',
-          borderRadius: '50%',
-          border: isMobile ? '1px solid rgba(0, 0, 0, 0.4)' : 'none',
-          backgroundColor: isMobile ? designTokens.colors.white : 'rgba(0, 0, 0, 0.1)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1001,
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          if (isMobile) {
-            e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
-          } else {
-            e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (isMobile) {
-            e.currentTarget.style.backgroundColor = designTokens.colors.white;
-          } else {
-            e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-          }
-        }}
-      >
-        <span style={{ 
-          fontSize: isMobile ? '18px' : '24px', 
-          color: designTokens.colors.black 
-        }}>×</span>
-      </button>
-
-      <h1 style={{ 
-        ...designTokens.textStyles.modalCaseTitle,
-        color: designTokens.colors.black,
-        marginBottom: '2rem', // 32px
-        marginTop: 0,
-        textAlign: 'left',
+        color: designTokens.colors.white,
       }}>
-        {caseStudy.title}
-      </h1>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '24px',
+            right: '24px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            color: designTokens.colors.white,
+            zIndex: 2,
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
 
-      {/* Cover Video/Image */}
-      <CoverMedia caseStudy={caseStudy} />
-
-      {/* Рендерим весь контент из CMS с новой логикой */}
-      {caseStudy.content && caseStudy.content.length > 0 && (
-        <div>
-          {caseStudy.content.map((block, index) => renderContentBlockWithGrid(block, index))}
-        </div>
-      )}
-
-      {/* Если контента нет */}
-      {(!caseStudy.content || caseStudy.content.length === 0) && (
-        <p style={{ 
-          ...designTokens.textStyles.body1,
-          color: designTokens.colors.grey800,
-          opacity: 0.7,
-          margin: 0,
+        <h1 style={{ 
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '32px',
+          fontWeight: 600,
+          lineHeight: '110%',
+          letterSpacing: '-0.03em',
+          color: designTokens.colors.white,
+          marginBottom: '2rem',
+          marginTop: 0,
+          textAlign: 'left',
         }}>
-          No content available
-        </p>
-      )}
+          {caseStudy.title}
+        </h1>
 
-      {/* Пустой спейсер в конце кейса */}
-      <div style={{ height: '12vh' }} />
+        {/* Cover Video/Image */}
+        <CoverMedia caseStudy={caseStudy} />
+
+        {/* Рендерим весь контент из CMS с новой логикой */}
+        {caseStudy.content && caseStudy.content.length > 0 && (
+          <div>
+            {caseStudy.content.map((block, index) => renderContentBlockWithGrid(block, index))}
+          </div>
+        )}
+
+        {/* Если контента нет */}
+        {(!caseStudy.content || caseStudy.content.length === 0) && (
+          <p style={{ 
+            fontFamily: 'var(--font-funnel-display), sans-serif',
+            fontSize: '20px',
+            fontWeight: 400,
+            lineHeight: '110%',
+            letterSpacing: '-0.03em',
+            color: designTokens.colors.white,
+            opacity: 0.7,
+            margin: 0,
+          }}>
+            No content available
+          </p>
+        )}
+
+        {/* Пустой спейсер в конце кейса */}
+        <div style={{ height: '12vh' }} />
+      </div>
     </div>
   );
 } 
