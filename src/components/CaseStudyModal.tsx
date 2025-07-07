@@ -308,12 +308,14 @@ const heroTextStyle = {
   fontWeight: 500,
   lineHeight: '110%',
   letterSpacing: '-0.02em',
+  textAlign: 'justify',
   color: designTokens.colors.white,
 } as const;
 
 const heroHeadingStyle = {
   ...heroTextStyle,
   fontWeight: 600,
+  textAlign: 'left',
 } as const;
 
 // Компонент для текстовых секций с rich text поддержкой
@@ -363,6 +365,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
           lineHeight: '110%',
           letterSpacing: '-0.02em',
           color: designTokens.colors.white,
+          textAlign: 'justify',
         }}>
           <PortableText value={cleanBlockContent(text)} components={portableTextComponents} />
         </div>
