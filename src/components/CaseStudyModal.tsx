@@ -1487,109 +1487,93 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(32, 34, 34, 0.55)',
-        backdropFilter: 'blur(14px) saturate(120%)',
-        WebkitBackdropFilter: 'blur(14px) saturate(120%)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        overflow: 'hidden',
-        zIndex: 1000,
-        opacity: 0,
-        transition: 'opacity 0.3s ease',
-      }}
-      ref={(el) => {
-        if (el) requestAnimationFrame(() => (el.style.opacity = '1'));
-      }}
-    >
-      <div
-        style={{
-          overflowY: 'auto',
-          maxHeight: '100%',
-          width: '100%',
-          padding: isMobile ? '16px' : '32px',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div style={{
-          backgroundColor: '#101010',
-          borderRadius: '24px',
-          padding: isMobile ? '24px' : '48px',
-          maxWidth: '1200px',
-          width: '100%',
-          position: 'relative',
-          color: designTokens.colors.white,
-        }}>
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: '24px',
-              right: '24px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px',
-              color: designTokens.colors.white,
-              zIndex: 2,
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(16, 16, 16, 0.8)', // #101010 с лёгкой прозрачностью
+      backdropFilter: 'blur(14px) saturate(120%)',
+      WebkitBackdropFilter: 'blur(14px) saturate(120%)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      overflowY: 'auto',
+      zIndex: 1000,
+      padding: isMobile ? '16px' : '32px',
+    }}>
+      <div style={{
+        backgroundColor: designTokens.colors.black,
+        borderRadius: '24px',
+        padding: isMobile ? '24px' : '48px',
+        maxWidth: '1200px',
+        width: '100%',
+        position: 'relative',
+        color: designTokens.colors.white,
+      }}>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '24px',
+            right: '24px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            color: designTokens.colors.white,
+            zIndex: 2,
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
 
-          <h1 style={{ 
-            fontFamily: 'var(--font-funnel-display), sans-serif',
-            fontSize: '32px',
-            fontWeight: 600,
+        <h1 style={{ 
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '32px',
+          fontWeight: 600,
+          lineHeight: '110%',
+          letterSpacing: '-0.02em',
+          color: designTokens.colors.white,
+          marginBottom: '2rem',
+          marginTop: 0,
+          textAlign: 'left',
+        }}>
+          {caseStudy.title}
+        </h1>
+
+        {/* Cover Video/Image */}
+        <CoverMedia caseStudy={caseStudy} />
+
+        {/* Рендерим весь контент из CMS с новой логикой */}
+        {caseStudy.content && caseStudy.content.length > 0 && (
+          <div>
+            {caseStudy.content.map((block, index) => renderContentBlockWithGrid(block, index))}
+          </div>
+        )}
+
+        {/* Если контента нет */}
+        {(!caseStudy.content || caseStudy.content.length === 0) && (
+          <p style={{ 
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: '20px',
+            fontWeight: 400,
             lineHeight: '110%',
             letterSpacing: '-0.02em',
             color: designTokens.colors.white,
-            marginBottom: '2rem',
-            marginTop: 0,
-            textAlign: 'left',
+            opacity: 0.7,
+            margin: 0,
           }}>
-            {caseStudy.title}
-          </h1>
+            No content available
+          </p>
+        )}
 
-          {/* Cover Video/Image */}
-          <CoverMedia caseStudy={caseStudy} />
-
-          {/* Рендерим весь контент из CMS с новой логикой */}
-          {caseStudy.content && caseStudy.content.length > 0 && (
-            <div>
-              {caseStudy.content.map((block, index) => renderContentBlockWithGrid(block, index))}
-            </div>
-          )}
-
-          {/* Если контента нет */}
-          {(!caseStudy.content || caseStudy.content.length === 0) && (
-            <p style={{ 
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '20px',
-              fontWeight: 400,
-              lineHeight: '110%',
-              letterSpacing: '-0.02em',
-              color: designTokens.colors.white,
-              opacity: 0.7,
-              margin: 0,
-            }}>
-              No content available
-            </p>
-          )}
-
-          {/* Пустой спейсер в конце кейса */}
-          <div style={{ height: '12vh' }} />
-        </div>
+        {/* Пустой спейсер в конце кейса */}
+        <div style={{ height: '12vh' }} />
       </div>
     </div>
   );
