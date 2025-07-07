@@ -176,22 +176,22 @@ function MetricsCallout({ metrics }: { metrics: Array<{ value: string; label: st
             minWidth: '120px',
           }}>
             <div style={{
-              fontFamily: 'var(--font-funnel-display), sans-serif',
+              fontFamily: 'Poppins, sans-serif',
               fontSize: '20px',
               fontWeight: 600,
               lineHeight: '110%',
-              letterSpacing: '-0.03em',
+              letterSpacing: '-0.02em',
               color: designTokens.colors.white,
               marginBottom: designTokens.spacing.xs,
             }}>
               {metric.value}
             </div>
             <div style={{
-              fontFamily: 'var(--font-funnel-display), sans-serif',
+              fontFamily: 'Poppins, sans-serif',
               fontSize: '20px',
               fontWeight: 400,
               lineHeight: '110%',
-              letterSpacing: '-0.03em',
+              letterSpacing: '-0.02em',
               color: designTokens.colors.white,
               opacity: 0.8,
             }}>
@@ -214,11 +214,11 @@ function PromptCallout({ text }: { text: string }) {
       borderRadius: '16px',
     }}>
       <p style={{
-        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontFamily: 'Poppins, sans-serif',
         fontSize: '20px',
         fontWeight: 400,
         lineHeight: '110%',
-        letterSpacing: '-0.03em',
+        letterSpacing: '-0.02em',
         color: designTokens.colors.white,
         margin: 0,
       }}>
@@ -239,11 +239,11 @@ function QuoteCallout({ text, author, authorTitle }: { text: string; author?: st
       borderLeft: `4px solid ${designTokens.colors.white}`,
     }}>
       <p style={{
-        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontFamily: 'Poppins, sans-serif',
         fontSize: '20px',
         fontWeight: 400,
         lineHeight: '110%',
-        letterSpacing: '-0.03em',
+        letterSpacing: '-0.02em',
         color: designTokens.colors.white,
         margin: 0,
         marginBottom: author ? designTokens.spacing.s : 0,
@@ -253,11 +253,11 @@ function QuoteCallout({ text, author, authorTitle }: { text: string; author?: st
       </p>
       {author && (
         <p style={{
-          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontFamily: 'Poppins, sans-serif',
           fontSize: '20px',
           fontWeight: 400,
           lineHeight: '110%',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.02em',
           color: designTokens.colors.white,
           opacity: 0.8,
           margin: 0,
@@ -303,11 +303,11 @@ function TestimonialCallout({ text, author, authorTitle }: { text: string; autho
 
 // Общий стиль, совпадающий с абзацем в Hero
 const heroTextStyle = {
-  fontFamily: 'var(--font-funnel-display), sans-serif',
+  fontFamily: 'Poppins, sans-serif',
   fontSize: '20px',
-  fontWeight: 400,
+  fontWeight: 500,
   lineHeight: '110%',
-  letterSpacing: '-0.03em',
+  letterSpacing: '-0.02em',
   color: designTokens.colors.white,
 } as const;
 
@@ -343,11 +343,11 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
     }}>
       {heading && (
         <h2 style={{
-          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontFamily: 'Poppins, sans-serif',
           fontSize: '20px',
           fontWeight: 600,
           lineHeight: '110%',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.02em',
           color: designTokens.colors.white,
           marginTop: 0,
           marginBottom: designTokens.spacing.m,
@@ -357,11 +357,11 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
       )}
       {text && (
         <div style={{
-          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontFamily: 'Poppins, sans-serif',
           fontSize: '20px',
           fontWeight: 400,
           lineHeight: '110%',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.02em',
           color: designTokens.colors.white,
         }}>
           <PortableText value={cleanBlockContent(text)} components={portableTextComponents} />
@@ -527,11 +527,11 @@ function InlineLink({ text, url }: { text: string; url: string }) {
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        fontFamily: 'var(--font-funnel-display), sans-serif',
+        fontFamily: 'Poppins, sans-serif',
         fontSize: '20px',
         fontWeight: 400,
         lineHeight: '110%',
-        letterSpacing: '-0.03em',
+        letterSpacing: '-0.02em',
         color: designTokens.colors.white,
         textDecoration: 'none',
         display: 'inline-flex',
@@ -1532,11 +1532,11 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
         </button>
 
         <h1 style={{ 
-          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontFamily: 'Poppins, sans-serif',
           fontSize: '32px',
           fontWeight: 600,
           lineHeight: '110%',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.02em',
           color: designTokens.colors.white,
           marginBottom: '2rem',
           marginTop: 0,
@@ -1558,11 +1558,11 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
         {/* Если контента нет */}
         {(!caseStudy.content || caseStudy.content.length === 0) && (
           <p style={{ 
-            fontFamily: 'var(--font-funnel-display), sans-serif',
+            fontFamily: 'Poppins, sans-serif',
             fontSize: '20px',
             fontWeight: 400,
             lineHeight: '110%',
-            letterSpacing: '-0.03em',
+            letterSpacing: '-0.02em',
             color: designTokens.colors.white,
             opacity: 0.7,
             margin: 0,
