@@ -22,12 +22,18 @@ function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisib
   // - На мобилке по запросу (tap) — пока скрываем
   const shouldShowVideo = canPlayVideo && caseStudy.coverVideo?.asset?.url && isHovered;
 
+  // Строим оптимизированный URL для Sanity CDN
+  const buildSanityImage = (url: string) => {
+    const width = isMobile ? 800 : 1600;
+    return `${url}?w=${width}&auto=format`;
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Статичное изображение */}
       {caseStudy.cover?.asset?.url && (
         <img
-          src={caseStudy.cover.asset.url}
+          src={buildSanityImage(caseStudy.cover.asset.url)}
           alt={caseStudy.cover.alt || caseStudy.title}
           loading="lazy"
           style={{
