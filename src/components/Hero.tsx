@@ -46,15 +46,6 @@ export default function Hero() {
     { id: 7, color: designTokens.colors.beige, content: videoFiles[4], type: 'video' },
   ];
 
-  // Мобильный флаг
-  const isMobile = !isLargeScreen;
-
-  // Функция, чтобы получить fallback картинку для видео
-  const getFallbackImage = (file: string) => {
-    const name = file.replace(/\.[^/.]+$/, "");
-    return `/img/Hero_Videos/${name}.png`;
-  };
-
   useEffect(() => {
     const checkScreenSize = () => {
       const isLarge = window.innerWidth > 768;
@@ -409,36 +400,23 @@ export default function Hero() {
             >
               {/* Видео или изображение */}
               {card.type === 'video' ? (
-                isMobile ? (
-                  <img
-                    src={getFallbackImage(card.content as string)}
-                    alt="Video placeholder"
-                    loading="lazy"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '20px',
-                    }}
-                  />
-                ) : (
-                  <video
-                    ref={(el) => {
-                      if (el) videoRefs.current[index] = el;
-                    }}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '20px',
-                    }}
-                    src={`/img/Hero_Videos/${card.content}`}
-                  />
-                )
+                <video
+                  ref={(el) => {
+                    if (el) videoRefs.current[index] = el;
+                  }}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '20px',
+                  }}
+                  src={`/img/Hero_Videos/${card.content}`}
+                />
               ) : (
                 <img
                   src={`/img/Hero_Videos/${card.content}`}
