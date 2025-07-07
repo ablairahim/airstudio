@@ -30,6 +30,7 @@ function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisib
         <img
           src={caseStudy.cover.asset.url}
           alt={caseStudy.cover.alt || caseStudy.title}
+          loading="lazy"
           style={{
             position: 'absolute',
             top: 0,

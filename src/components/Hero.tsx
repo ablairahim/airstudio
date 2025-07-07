@@ -413,6 +413,7 @@ export default function Hero() {
                   <img
                     src={getFallbackImage(card.content as string)}
                     alt="Video placeholder"
+                    loading="lazy"
                     style={{
                       width: '100%',
                       height: '100%',

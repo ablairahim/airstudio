@@ -205,5 +205,5 @@ export const siteSettings = {
   
   // Set to false to freeze all content videos inside case studies
   // Change to true to enable autoplay for content videos
-  ENABLE_CONTENT_VIDEO_AUTOPLAY: false,
+  ENABLE_CONTENT_VIDEO_AUTOPLAY: true,
 } as const 
