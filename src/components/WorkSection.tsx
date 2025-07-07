@@ -8,18 +8,20 @@ import { useModal } from '../contexts/ModalContext';
 import { useLoading } from '../contexts/LoadingContext';
 
 // Inline компонент для медиа (изображение по умолчанию, видео при hover или на мобилке при scroll)
-function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisible, isMobile }: { 
+function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisible, isMobile, isIOS, canPlayVideo }: { 
   caseStudy: CaseStudyPreview; 
   aspectRatio?: string;
   isHovered?: boolean;
   isVisible?: boolean;
   isMobile?: boolean;
+  isIOS?: boolean;
+  canPlayVideo: boolean;
 }) {
   // Показываем видео если:
   // - НЕ мобильное устройство (экономим трафик)
   // - На десктопе при hover
   // - На мобилке по запросу (tap) — пока скрываем
-  const shouldShowVideo = !isMobile && caseStudy.coverVideo?.asset?.url && isHovered;
+  const shouldShowVideo = canPlayVideo && caseStudy.coverVideo?.asset?.url && isHovered;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -156,6 +158,7 @@ export function WorkSection() {
   const [loomVideos, setLoomVideos] = useState<LoomVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [canPlayVideo, setCanPlayVideo] = useState(true);
   const [hoveredCaseId, setHoveredCaseId] = useState<string | null>(null);
   const [visibleCaseIds, setVisibleCaseIds] = useState<Set<string>>(new Set());
   const { openCaseModal } = useModal();
@@ -181,13 +184,11 @@ export function WorkSection() {
     };
   }, []);
 
-
-
-
-
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth > 768);
+      const width = window.innerWidth;
+      setIsLargeScreen(width > 768);
+      setCanPlayVideo(width > 1024); // только десктоп
     };
 
     checkScreenSize();
@@ -392,6 +393,8 @@ export function WorkSection() {
                     isHovered={hoveredCaseId === caseStudy._id}
                     isVisible={visibleCaseIds.has(caseStudy._id)}
                     isMobile={!isLargeScreen}
+                    isIOS={isIOS}
+                    canPlayVideo={canPlayVideo}
                   />
                 </div>
 
@@ -475,6 +478,8 @@ export function WorkSection() {
                             isHovered={hoveredCaseId === caseStudy._id}
                             isVisible={visibleCaseIds.has(caseStudy._id)}
                             isMobile={!isLargeScreen}
+                            isIOS={isIOS}
+                            canPlayVideo={canPlayVideo}
                           />
                         </div>
 
