@@ -8,13 +8,12 @@ import { useModal } from '../contexts/ModalContext';
 import { useLoading } from '../contexts/LoadingContext';
 
 // Inline компонент для медиа (изображение по умолчанию, видео при hover или на мобилке при scroll)
-function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisible, isMobile, isIOS, canPlayVideo }: { 
+function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisible, isMobile, canPlayVideo }: { 
   caseStudy: CaseStudyPreview; 
   aspectRatio?: string;
   isHovered?: boolean;
   isVisible?: boolean;
   isMobile?: boolean;
-  isIOS?: boolean;
   canPlayVideo: boolean;
 }) {
   // Показываем видео если:
@@ -394,7 +393,6 @@ export function WorkSection() {
                     isHovered={hoveredCaseId === caseStudy._id}
                     isVisible={visibleCaseIds.has(caseStudy._id)}
                     isMobile={!isLargeScreen}
-                    isIOS={isIOS}
                     canPlayVideo={canPlayVideo}
                   />
                 </div>
@@ -479,7 +477,6 @@ export function WorkSection() {
                             isHovered={hoveredCaseId === caseStudy._id}
                             isVisible={visibleCaseIds.has(caseStudy._id)}
                             isMobile={!isLargeScreen}
-                            isIOS={isIOS}
                             canPlayVideo={canPlayVideo}
                           />
                         </div>
