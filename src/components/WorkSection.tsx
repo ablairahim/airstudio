@@ -16,11 +16,10 @@ function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisib
   isMobile?: boolean;
 }) {
   // Показываем видео если:
+  // - НЕ мобильное устройство (экономим трафик)
   // - На десктопе при hover
-  // - На мобилке когда элемент видим в viewport
-  const shouldShowVideo = caseStudy.coverVideo?.asset?.url && (
-    (isMobile && isVisible) || (!isMobile && isHovered)
-  );
+  // - На мобилке по запросу (tap) — пока скрываем
+  const shouldShowVideo = !isMobile && caseStudy.coverVideo?.asset?.url && isHovered;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>

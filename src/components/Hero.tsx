@@ -23,10 +23,10 @@ export default function Hero() {
   // Видео файлы для карточек
   const videoFiles = [
     "4.webm",
-    "5.webm", 
+    "5.webm",
     "9.webm",
-    "Judo Work.webm",
-    "radar cover 2.webm"
+    "judo_work.webm",
+    "radar_cover_2.webm",
   ];
 
   // Статичные изображения
@@ -45,6 +45,15 @@ export default function Hero() {
     { id: 6, color: designTokens.colors.blue, content: videoFiles[3], type: 'video' },
     { id: 7, color: designTokens.colors.beige, content: videoFiles[4], type: 'video' },
   ];
+
+  // Мобильный флаг
+  const isMobile = !isLargeScreen;
+
+  // Функция, чтобы получить fallback картинку для видео
+  const getFallbackImage = (file: string) => {
+    const name = file.replace(/\.[^/.]+$/, "");
+    return `/img/Hero_Videos/${name}.png`;
+  };
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -400,22 +409,35 @@ export default function Hero() {
             >
               {/* Видео или изображение */}
               {card.type === 'video' ? (
-                <video
-                  ref={(el) => {
-                    if (el) videoRefs.current[index] = el;
-                  }}
-                  src={`/img/Hero_Videos/${card.content}`}
-                  autoPlay // Автоплей на всех устройствах
-                  loop
-                  muted
-                  playsInline
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                  }}
-                />
+                isMobile ? (
+                  <img
+                    src={getFallbackImage(card.content as string)}
+                    alt="Video placeholder"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '20px',
+                    }}
+                  />
+                ) : (
+                  <video
+                    ref={(el) => {
+                      if (el) videoRefs.current[index] = el;
+                    }}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '20px',
+                    }}
+                    src={`/img/Hero_Videos/${card.content}`}
+                  />
+                )
               ) : (
                 <img
                   src={`/img/Hero_Videos/${card.content}`}
