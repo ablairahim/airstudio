@@ -1,7 +1,6 @@
-"use client";
-
 import { getCaseStudyBySlug } from "@/lib/sanity";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,9 +8,12 @@ interface PageProps {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const caseStudy = await getCaseStudyBySlug(params.slug);
   if (!caseStudy) return {};
+
+  const ogImage = caseStudy.cover?.asset.url;
+  
   return {
     title: `${caseStudy.title} – Ablai Rakhimbekov`,
     description: caseStudy.summary,
@@ -19,8 +21,20 @@ export async function generateMetadata({ params }: PageProps) {
       title: caseStudy.title,
       description: caseStudy.summary,
       url: `https://airstudio.work/${params.slug}`,
-      images: [caseStudy.cover?.asset.url].filter(Boolean),
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
       type: "article",
+      publishedTime: caseStudy._createdAt,
+      modifiedTime: caseStudy._updatedAt,
+      authors: ["Ablai Rakhimbekov"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: caseStudy.title,
+      description: caseStudy.summary,
+      images: ogImage ? [ogImage] : [],
+    },
+    alternates: {
+      canonical: `https://airstudio.work/${params.slug}`,
     },
   };
 }
@@ -29,69 +43,101 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const data = await getCaseStudyBySlug(params.slug);
   if (!data) notFound();
 
+  // Structured data for Google
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: data.title,
+    description: data.summary,
+    image: data.cover?.asset.url,
+    datePublished: data._createdAt,
+    dateModified: data._updatedAt,
+    author: {
+      "@type": "Person",
+      name: "Ablai Rakhimbekov",
+      url: "https://airstudio.work",
+    },
+  };
+
   return (
-    <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
-      <article>
-        <header style={{ marginBottom: 32 }}>
-          <h1 style={{ fontSize: "2.25rem", lineHeight: 1.1 }}>{data.title}</h1>
-          {data.summary && <p style={{ maxWidth: 640 }}>{data.summary}</p>}
-          {data.cover?.asset?.url && (
-            <Image
-              src={`${data.cover.asset.url}?w=1200&auto=format`}
-              alt={data.cover.alt || data.title}
-              width={1200}
-              height={700}
-              style={{ width: "100%", height: "auto", marginTop: 24, borderRadius: 16 }}
-              priority
-            />
-          )}
-        </header>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="min-h-screen p-10">
+        <article className="max-w-4xl mx-auto">
+          <header className="mb-8">
+            <h1 className="text-4xl font-bold leading-tight mb-4">{data.title}</h1>
+            {data.summary && (
+              <p className="text-xl text-gray-600 max-w-2xl">{data.summary}</p>
+            )}
+            {data.cover?.asset?.url && (
+              <Image
+                src={`${data.cover.asset.url}?auto=format&w=1200`}
+                alt={data.cover.alt || data.title}
+                width={1200}
+                height={700}
+                className="w-full h-auto mt-6 rounded-lg"
+                priority
+              />
+            )}
+          </header>
 
-        {/* Simple render of Portable Text blocks that are paragraphs/images/videos */}
-        {data.content?.map((block, i) => {
-          if (block._type === "textSection" && block.text) {
-            return (
-              <section key={i} style={{ marginBottom: 32 }}>
-                {block.heading && <h2>{block.heading}</h2>}
-                {block.text.map((pt: any, idx: number) => (
-                  <p key={idx}>{pt.children?.[0]?.text}</p>
-                ))}
-              </section>
-            );
-          }
-          if (block._type === "imageBlock") {
-            return (
-              <figure key={i} style={{ marginBottom: 32 }}>
-                <Image
-                  src={`${block.image.asset.url}?w=1200&auto=format`}
-                  alt={block.image.alt || "Project image"}
-                  width={1200}
-                  height={700}
-                  loading="lazy"
-                  style={{ width: "100%", height: "auto", borderRadius: 16 }}
-                />
-              </figure>
-            );
-          }
-          if (block._type === "videoBlock" && block.video?.asset?.url) {
-            return (
-              <figure key={i} style={{ marginBottom: 32 }}>
-                <video
-                  src={block.video.asset.url}
-                  controls
-                  poster={block.poster?.asset?.url}
-                  style={{ width: "100%", height: "auto", borderRadius: 16 }}
-                />
-              </figure>
-            );
-          }
-          return null;
-        })}
+          {data.content?.map((block, i) => {
+            if (block._type === "textSection" && block.text) {
+              return (
+                <section key={i} className="mb-8">
+                  {block.heading && (
+                    <h2 className="text-2xl font-semibold mb-4">{block.heading}</h2>
+                  )}
+                  {block.text.map((pt: any, idx: number) => (
+                    <p key={idx} className="mb-4 text-lg">
+                      {pt.children?.[0]?.text}
+                    </p>
+                  ))}
+                </section>
+              );
+            }
+            if (block._type === "imageBlock") {
+              return (
+                <figure key={i} className="mb-8">
+                  <Image
+                    src={`${block.image.asset.url}?auto=format&w=1200`}
+                    alt={block.image.alt || "Project image"}
+                    width={1200}
+                    height={700}
+                    loading="lazy"
+                    className="w-full h-auto rounded-lg"
+                  />
+                </figure>
+              );
+            }
+            if (block._type === "videoBlock" && block.video?.asset?.url) {
+              return (
+                <figure key={i} className="mb-8">
+                  <video
+                    src={block.video.asset.url}
+                    controls
+                    poster={block.poster?.asset?.url}
+                    className="w-full h-auto rounded-lg"
+                  />
+                </figure>
+              );
+            }
+            return null;
+          })}
 
-        <footer style={{ marginTop: 48 }}>
-          <Link href="/">← Back to work</Link>
-        </footer>
-      </article>
-    </main>
+          <footer className="mt-12 border-t pt-8">
+            <Link 
+              href="/" 
+              className="text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              ← Back to work
+            </Link>
+          </footer>
+        </article>
+      </main>
+    </>
   );
 } 
