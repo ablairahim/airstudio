@@ -1512,10 +1512,15 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'flex-start',
-      overflowY: 'auto',
+      overflow: 'hidden',
       zIndex: 1000,
       padding: isMobile ? '16px' : '32px',
     }}>
+      <div style={{
+        maxHeight: '100%',
+        overflowY: 'auto',
+        width: '100%',
+      }}>
       <div style={{
         backgroundColor: designTokens.colors.black,
         borderRadius: '24px',
@@ -1587,6 +1592,7 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
 
         {/* Пустой спейсер в конце кейса */}
         <div style={{ height: '12vh' }} />
+      </div>
       </div>
       {/* Fixed Close pill for mobile */}
       {isMobile && (
