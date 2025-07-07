@@ -24,7 +24,7 @@ export async function GET() {
   const caseUrls = cases.map(c => ({
     loc: `${base}/${c.slug.current}`,
     priority: "0.9",
-    lastmod: c._updatedAt?.split('T')[0] || today,
+    lastmod: today,
     changefreq: "weekly"
   }));
 
