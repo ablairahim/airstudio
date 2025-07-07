@@ -241,10 +241,11 @@ export default function Hero() {
     };
   }, [animatingCards.length, cardWidth]);
 
-  // Freeze hero videos on mobile: seek to middle frame and pause
+  // Freeze hero videos only on mobile screens (<=768px)
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!isMobile) return; // Run only on mobile screens
+    const isMobileScreen = window.innerWidth <= 768;
+    if (!isMobileScreen) return;
 
     videoRefs.current.forEach((video) => {
       if (!video) return;
@@ -255,8 +256,8 @@ export default function Hero() {
           if (!isNaN(mid) && mid > 0) {
             video.currentTime = mid;
           }
-        } catch (e) {
-          // ignore seek errors
+        } catch {
+          /* ignore */
         } finally {
           video.pause();
         }
@@ -268,7 +269,7 @@ export default function Hero() {
         video.addEventListener('loadedmetadata', freeze, { once: true });
       }
     });
-  }, [isMobile]);
+  }, []);
 
   // Анимация кнопки Scroll
   useEffect(() => {
