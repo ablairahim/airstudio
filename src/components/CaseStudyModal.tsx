@@ -309,7 +309,6 @@ const heroTextStyle = {
   fontWeight: 500,
   lineHeight: '110%',
   letterSpacing: '-0.02em',
-  textAlign: 'justify',
   color: designTokens.colors.white,
 } as const;
 
@@ -657,6 +656,7 @@ function TextSectionWithGrid({
             <p style={{
               ...heroTextStyle,
               marginBottom: designTokens.spacing.m,
+              textAlign: 'justify',
             }}>
               {processMarkdownLinks(children)}
             </p>
@@ -675,6 +675,7 @@ function TextSectionWithGrid({
           <p style={{
             ...heroTextStyle,
             marginBottom: designTokens.spacing.m,
+            textAlign: 'justify',
           }}>
             {processedChildren}
           </p>
@@ -714,6 +715,7 @@ function TextSectionWithGrid({
            ...heroTextStyle,
            marginBottom: designTokens.spacing.m,
            paddingLeft: designTokens.spacing.l,
+           textAlign: 'justify',
          }}>
            {children}
          </ul>
@@ -723,6 +725,7 @@ function TextSectionWithGrid({
            ...heroTextStyle,
            marginBottom: designTokens.spacing.m,
            paddingLeft: designTokens.spacing.l,
+           textAlign: 'justify',
          }}>
            {children}
          </ol>
@@ -741,6 +744,7 @@ function TextSectionWithGrid({
            <li style={{
              ...heroTextStyle,
              marginBottom: designTokens.spacing.xs,
+             textAlign: 'justify',
            }}>
              {processedChildren}
            </li>
@@ -758,6 +762,7 @@ function TextSectionWithGrid({
            <li style={{
              ...heroTextStyle,
              marginBottom: designTokens.spacing.xs,
+             textAlign: 'justify',
            }}>
              {processedChildren}
            </li>
@@ -936,6 +941,7 @@ function ParagraphBlockWithGrid({
               letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
               color: designTokens.colors.white,
               marginBottom: designTokens.spacing.m,
+              textAlign: 'justify',
             }}>
               {processMarkdownLinks(children)}
             </p>
@@ -959,6 +965,7 @@ function ParagraphBlockWithGrid({
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
             color: designTokens.colors.white,
             marginBottom: designTokens.spacing.m,
+            textAlign: 'justify',
           }}>
             {processedChildren}
           </p>
@@ -1006,6 +1013,7 @@ function ParagraphBlockWithGrid({
           color: designTokens.colors.white,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
+          textAlign: 'justify',
         }}>
           {children}
         </ul>
@@ -1020,6 +1028,7 @@ function ParagraphBlockWithGrid({
           color: designTokens.colors.white,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
+          textAlign: 'justify',
         }}>
           {children}
         </ol>
@@ -1043,6 +1052,7 @@ function ParagraphBlockWithGrid({
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
             color: designTokens.colors.white,
             marginBottom: designTokens.spacing.xs,
+            textAlign: 'justify',
           }}>
             {processedChildren}
           </li>
@@ -1065,6 +1075,7 @@ function ParagraphBlockWithGrid({
             letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
             color: designTokens.colors.white,
             marginBottom: designTokens.spacing.xs,
+            textAlign: 'justify',
           }}>
             {processedChildren}
           </li>
@@ -1577,6 +1588,36 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
 
         {/* Пустой спейсер в конце кейса */}
         <div style={{ height: '12vh' }} />
+
+        {/* Mobile bottom close button */}
+        {isMobile && (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: designTokens.colors.white,
+              color: designTokens.colors.black,
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '8px 16px',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '16px',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Close
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
