@@ -430,7 +430,7 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              {card.type === 'video' ? (
+              {card.type === 'video' && isLargeScreen ? (
                 <video
                   autoPlay
                   loop
@@ -447,7 +447,7 @@ export default function Hero() {
                 />
               ) : (
                 <img
-                  src={`/img/Hero_Videos/${card.content}`}
+                  src={`/img/Hero_Videos/${card.type === 'video' ? card.content.replace('.mp4', '.png') : card.content}`}
                   alt="Content"
                   style={{
                     width: '100%',
