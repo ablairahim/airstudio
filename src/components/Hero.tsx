@@ -21,31 +21,32 @@ export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
   const { isFirstLoad } = useLoading();
   
-  // Видео файлы для карточек
-  const videoFiles = [
-    "4.webm",
-    "5.webm",
-    "9.webm",
-    "judo_work.webm",
-    "radar_cover_2.webm",
+  // PNG изображения для карточек (7 штук)
+  const imageFiles = [
+    "2-1.png",
+    "2.png",
+    "3.png",
+    "4.png",
+    "qoll.png",
+    "sveti.png",
+    "HFF.png",
   ];
 
-  // Статичные изображения
-  const staticImages = [
-    "qoll.png",
-    "sveti.png"
+  const colors = [
+    designTokens.colors.pink,
+    designTokens.colors.blue,
+    designTokens.colors.beige,
+    designTokens.colors.dun,
+    designTokens.colors.pink,
+    designTokens.colors.blue,
+    designTokens.colors.beige,
   ];
-  
-  // 7 карточек для анимации с поочередностью webm и статика
-  const animatingCards = [
-    { id: 1, color: designTokens.colors.pink, content: videoFiles[0], type: 'video' },
-    { id: 2, color: designTokens.colors.blue, content: staticImages[0], type: 'image' },
-    { id: 3, color: designTokens.colors.beige, content: videoFiles[1], type: 'video' },
-    { id: 4, color: designTokens.colors.dun, content: staticImages[1], type: 'image' },
-    { id: 5, color: designTokens.colors.pink, content: videoFiles[2], type: 'video' },
-    { id: 6, color: designTokens.colors.blue, content: videoFiles[3], type: 'video' },
-    { id: 7, color: designTokens.colors.beige, content: videoFiles[4], type: 'video' },
-  ];
+
+  const animatingCards = imageFiles.map((file, idx) => ({
+    id: idx + 1,
+    color: colors[idx % colors.length],
+    content: file,
+  }));
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -428,36 +429,16 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              {card.type === 'video' ? (
-                <video
-                  ref={(el) => {
-                    if (el) videoRefs.current[index] = el;
-                  }}
-                  autoPlay={isLargeScreen}
-                  loop={isLargeScreen}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                  }}
-                  src={`/img/Hero_Videos/${card.content}`}
-                />
-              ) : (
-                <img
-                  src={`/img/Hero_Videos/${card.content}`}
-                  alt="Static content"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                  }}
-                />
-              )}
+              <img
+                src={`/img/Hero_Videos/${card.content}`}
+                alt="Content"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '20px',
+                }}
+              />
             </div>
           );
         })}
