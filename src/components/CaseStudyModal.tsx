@@ -4,12 +4,25 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PortableText } from '@portabletext/react';
-import { CaseStudy, ContentBlock } from '../lib/sanity';
+import { ContentBlock } from '../lib/sanity';
+import { CaseStudy } from '../types';
 import { designTokens } from '../lib/design-tokens';
 import { siteSettings } from '@/lib/design-system';
 
 // Компонент для отображения cover media (видео или изображение)
 function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   // Видео имеет приоритет над изображением
   if (caseStudy.coverVideo?.asset?.url) {
     return (
@@ -17,7 +30,7 @@ function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
         marginBottom: '2rem', // 32px
         width: '100%',
         overflow: 'hidden',
-        borderRadius: '16px',
+        borderRadius: isMobile ? '0' : '16px',
       }}>
         <video
           src={caseStudy.coverVideo.asset.url}
@@ -43,7 +56,7 @@ function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
       <div style={{
         marginBottom: '2rem', // 32px
         overflow: 'hidden',
-        borderRadius: '16px',
+        borderRadius: isMobile ? '0' : '16px',
       }}>
         <Image
           src={caseStudy.cover.asset.url}
@@ -1357,11 +1370,23 @@ function LoomBlock({ url }: { url: string }) {
 
 // Компонент для изображений
 function ImageBlock({ image }: { image: { asset: { url: string }; alt?: string } }) {
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   return (
     <div style={{
       marginBottom: designTokens.spacing.xl,
       overflow: 'hidden',
-      borderRadius: '16px',
+      borderRadius: isMobile ? '0' : '16px',
     }}>
       <Image
         src={image.asset.url}
@@ -1469,6 +1494,18 @@ function VideoBlock({ video, alt, poster }: {
   alt?: string; 
   poster?: { asset: { url: string }; alt?: string } 
 }) {
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   // Проверяем, что видео и его asset существуют
   if (!video || !video.asset || !video.asset.url) {
     return null;
@@ -1480,7 +1517,7 @@ function VideoBlock({ video, alt, poster }: {
       width: '100%',
       overflow: 'hidden',
       backgroundColor: designTokens.colors.grey500,
-      borderRadius: '16px',
+      borderRadius: isMobile ? '0' : '16px',
     }}>
       <video
         src={video.asset.url}
@@ -1578,8 +1615,8 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       return (
         <TextSectionWithGrid
           key={index}
-          heading={(block as any).heading}
-          text={(block as any).text}
+          heading={block.heading}
+          text={block.text}
           showFacts={isFirstTextBlock && !!factsData}
           factsData={factsData}
           linksData={isFirstTextBlock ? linksData : undefined}
@@ -1593,7 +1630,7 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
       return (
         <ParagraphBlockWithGrid
           key={index}
-          text={(block as any).text}
+          text={block.text}
           showFacts={isFirstTextBlock && !!factsData}
           factsData={factsData}
           linksData={isFirstTextBlock ? linksData : undefined}
