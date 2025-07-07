@@ -24,6 +24,7 @@ export const designTokens = {
     lightGreen: '#D2FFD2',
     beige: '#FFE5D2',
     white: '#FFFFFF',
+    grey50: '#FAFAFA',
     grey100: '#F1F3F4',
     grey500: '#BFC9CA',
     grey800: '#202222',
@@ -36,7 +37,7 @@ export const designTokens = {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,         // Medium
       fontSize: '2.5rem',      // 40px
-      letterSpacing: '-0.06em', // -6%
+      letterSpacing: '-0.03em', // -3%
       lineHeight: '1.1',       // 110%
     },
     h2: {
@@ -50,14 +51,14 @@ export const designTokens = {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '1.125rem',    // 18px
-      letterSpacing: '-0.04em', // -4% (уменьшено на 2%)
+      letterSpacing: '-0.03em', // -3%
       lineHeight: '1.25rem',   // 20px
     },
     paragraph: {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '1.5rem',      // 24px
-      letterSpacing: '-0.06em', // -0.04em - 2% = -0.06em
+      letterSpacing: '-0.03em', // -3%
     },
     body1: {
       fontFamily: 'Inter, sans-serif',
@@ -70,25 +71,63 @@ export const designTokens = {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '1.125rem',    // 18px
-      letterSpacing: '-0.06em', // -0.04em - 2% = -0.06em
+      letterSpacing: '-0.03em', // -3%
     },
     tag: {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '0.75rem',     // 12px
-      letterSpacing: '-0.06em', // -0.04em - 2% = -0.06em
+      letterSpacing: '-0.03em', // -3%
     },
     prompt: {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 400,
       fontSize: '1rem',        // 16px
-      letterSpacing: '-0.06em', // -0.04em - 2% = -0.06em
+      letterSpacing: '-0.03em', // -3%
     },
     button: {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '1.125rem',    // 18px
-      letterSpacing: '-0.09em', // -0.07em - 2% = -0.09em
+      letterSpacing: '-0.03em', // -3%
+    },
+    
+    // Стили для модальных окон кейсов
+    modalCaseTitle: {
+      fontFamily: 'var(--font-funnel-display), sans-serif',
+      fontWeight: 600,         // Жирный  
+      fontSize: '2.5rem',      // 40px
+      letterSpacing: '-0.03em', // Как у h2
+      lineHeight: '1.1',       // 44px межстрочного для 40px шрифта
+    },
+    modalCaseHeading: {
+      fontFamily: 'var(--font-funnel-display), sans-serif',
+      fontWeight: 600,         // Жирный
+      fontSize: '1.5rem',      // 24px
+      letterSpacing: '-0.03em', // Как у h2
+      lineHeight: '1.25',      // 30px line-height для 24px шрифта
+    },
+    modalCaseText: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 500,         // Medium
+      fontSize: '1.25rem',     // 20px
+      letterSpacing: '-0.02em',
+      lineHeight: '1.5',       // 30px line-height для 20px шрифта
+    },
+    modalCaseTextCompact: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 500,         // Medium
+      fontSize: '1.25rem',     // 20px
+      letterSpacing: '-0.02em',
+      lineHeight: '1.6',       // 32px line-height для 20px шрифта
+    },
+    // Стиль approach для text section в модалке  
+    modalApproachText: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 400,         // Regular
+      fontSize: '1.125rem',    // 18px
+      letterSpacing: '-0.03em', // -3%
+      lineHeight: '1.11',      // 20px line-height для 18px шрифта (20/18 = 1.11)
     },
   },
 
@@ -98,7 +137,7 @@ export const designTokens = {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,         // Medium
       fontSize: '2.5rem',      // 40px (остается тот же)
-      letterSpacing: '-0.06em', // -6%
+      letterSpacing: '-0.03em', // -3%
       lineHeight: '1.1',       // 110%
     },
     h2: {
@@ -112,8 +151,46 @@ export const designTokens = {
       fontFamily: 'Inter, sans-serif',
       fontWeight: 500,
       fontSize: '1.125rem',    // 18px (остается тот же)
-      letterSpacing: '-0.04em', // -4% (уменьшено на 2%)
+      letterSpacing: '-0.03em', // -3%
       lineHeight: '1.25rem',   // 20px
+    },
+    
+    // Мобильные стили для модальных окон кейсов
+    modalCaseTitle: {
+      fontFamily: 'var(--font-funnel-display), sans-serif',
+      fontWeight: 600,         // Жирный
+      fontSize: '2rem',        // 32px для мобильных
+      letterSpacing: '-0.03em', // Как у h2
+      lineHeight: '1.125',     // 36px межстрочного для 32px шрифта
+    },
+    modalCaseHeading: {
+      fontFamily: 'var(--font-funnel-display), sans-serif',
+      fontWeight: 600,         // Жирный
+      fontSize: '1.375rem',    // 22px для мобильных
+      letterSpacing: '-0.03em', // Как у h2
+      lineHeight: '1.36',      // 30px line-height для 22px шрифта
+    },
+    modalCaseText: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 500,         // Medium
+      fontSize: '1.25rem',     // 20px
+      letterSpacing: '-0.02em',
+      lineHeight: '1.5',       // 30px line-height для 20px шрифта
+    },
+    modalCaseTextCompact: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 500,         // Medium
+      fontSize: '1.25rem',     // 20px
+      letterSpacing: '-0.02em',
+      lineHeight: '1.6',       // 32px line-height для 20px шрифта
+    },
+    // Мобильный стиль approach для text section в модалке  
+    modalApproachText: {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 400,         // Regular
+      fontSize: '1.125rem',    // 18px (остается тот же на мобилке)
+      letterSpacing: '-0.03em', // -3%
+      lineHeight: '1.11',      // 20px line-height для 18px шрифта
     },
   },
 

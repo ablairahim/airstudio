@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Allow access to CSS and JS files
+Allow: /_next/static/
+
+# Disallow admin areas
+Disallow: /studio/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://airstudio.design/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1 

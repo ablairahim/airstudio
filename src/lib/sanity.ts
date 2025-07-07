@@ -4,15 +4,19 @@ import imageUrlBuilder from '@sanity/image-url'
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  useCdn: process.env.NODE_ENV === 'production',
+  useCdn: process.env.NODE_ENV === 'production', // CDN только в продакшене
   apiVersion: '2024-12-19',
   perspective: 'published',
+  // Добавляем настройки для оптимизации
+  ignoreBrowserTokenWarning: true,
+  // Оптимизируем запросы
+  withCredentials: false,
 })
 
 const builder = imageUrlBuilder(client)
 
 export function urlFor(source: any) {
-  return builder.image(source)
+  return builder.image(source).auto('format').quality(85) // Оптимизация изображений
 }
 
 // Type definitions for our schemas
@@ -25,11 +29,17 @@ export interface CaseStudy {
   tags: string[]
   title: string
   summary?: string
+  order: number
   cover?: {
     asset: {
       url: string
     }
     alt?: string
+  }
+  coverVideo?: {
+    asset: {
+      url: string
+    }
   }
   content?: ContentBlock[]
 }
@@ -101,6 +111,10 @@ export type ContentBlock =
       text?: any[] // PortableText block content
     }
   | {
+      _type: 'paragraphBlock'
+      text?: any[] // PortableText block content
+    }
+  | {
       _type: 'imageBlock'
       image: {
         asset: {
@@ -124,31 +138,57 @@ export type ContentBlock =
         alt?: string
       }
     }
+  | {
+      _type: 'blurredImageBlock'
+      image: {
+        asset: {
+          url: string
+        }
+        alt?: string
+      }
+      tooltipText?: string
+    }
 
 // Helper functions for fetching data
 export async function getAllCaseStudies(): Promise<CaseStudy[]> {
   try {
     const query = `
-      *[_type == "caseStudy"] | order(_createdAt desc) {
+      *[_type == "caseStudy"] | order(order desc) {
         _id,
         _type,
         slug,
         tags,
         title,
         summary,
-        cover
+        order,
+        cover {
+          asset-> {
+            url
+          },
+          alt
+        },
+        coverVideo {
+          asset-> {
+            url
+          }
+        }
       }
     `
     
     const result = await client.fetch(query, {}, {
-      cache: 'no-cache',
-      next: { revalidate: 0 }
+      cache: process.env.NODE_ENV === 'production' ? 'force-cache' : 'no-cache',
+      next: { 
+        revalidate: process.env.NODE_ENV === 'production' ? 300 : 0, // 5 минут кеш в продакшене
+        tags: ['case-studies']
+      }
     })
     
     // Убеждаемся что возвращаем массив, даже если результат null или undefined
     return Array.isArray(result) ? result : []
   } catch (error) {
-    console.error('Error fetching case studies:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching case studies:', error)
+    }
     return []
   }
 }
@@ -163,11 +203,17 @@ export async function getCaseStudyBySlug(slug: string): Promise<CaseStudy | null
         tags,
         title,
         summary,
+        order,
         cover {
           asset-> {
             url
           },
           alt
+        },
+        coverVideo {
+          asset-> {
+            url
+          }
         },
         content[] {
           _type,
@@ -228,6 +274,30 @@ export async function getCaseStudyBySlug(slug: string): Promise<CaseStudy | null
               }
             }
           },
+          // For paragraph blocks
+          _type == "paragraphBlock" => {
+            _type,
+            text[] {
+              ...,
+              _type == "block" => {
+                ...,
+                children[] {
+                  ...,
+                  _type == "span" => {
+                    ...,
+                    marks[@ != null] {
+                      ...,
+                      _type == "link" => {
+                        ...,
+                        _key,
+                        href
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           // For images
           _type == "imageBlock" => {
             _type,
@@ -253,19 +323,35 @@ export async function getCaseStudyBySlug(slug: string): Promise<CaseStudy | null
               },
               alt
             }
+          },
+          // For blurred images
+          _type == "blurredImageBlock" => {
+            _type,
+            image {
+              asset-> {
+                url
+              },
+              alt
+            },
+            tooltipText
           }
         }
       }
     `
     
     const result = await client.fetch(query, { slug }, { 
-      cache: 'no-cache',
-      next: { revalidate: 0 }
+      cache: process.env.NODE_ENV === 'production' ? 'force-cache' : 'no-cache',
+      next: { 
+        revalidate: process.env.NODE_ENV === 'production' ? 300 : 0, // 5 минут кеш в продакшене
+        tags: ['case-study', `case-study-${slug}`]
+      }
     })
     
     return result || null
   } catch (error) {
-    console.error('Error fetching case study by slug:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching case study by slug:', error)
+    }
     return null
   }
 }

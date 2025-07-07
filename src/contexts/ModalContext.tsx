@@ -28,6 +28,9 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       const currentScrollY = window.scrollY;
       setSavedScrollY(currentScrollY);
       
+      // Добавляем класс для отключения smooth scroll
+      document.documentElement.classList.add('modal-open');
+      
       // Блокируем скролл body
       document.body.style.position = 'fixed';
       document.body.style.top = `-${currentScrollY}px`;
@@ -38,15 +41,6 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       if (modalContainerRef?.current) {
         modalContainerRef.current.scrollTop = 0;
       }
-    } else {
-      // Восстанавливаем скролл при закрытии - НЕ скроллим наверх
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      
-      // Восстанавливаем сохраненную позицию скролла
-      window.scrollTo(0, savedScrollY);
     }
     
     return () => {
@@ -55,8 +49,11 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       document.body.style.top = '';
       document.body.style.width = '';
       document.body.style.overflow = '';
+      document.documentElement.classList.remove('modal-open');
     };
-  }, [isModalOpen, modalContainerRef, savedScrollY]);
+  }, [isModalOpen, modalContainerRef]);
+
+
 
   // Дополнительно сбрасываем скролл при смене кейса
   useEffect(() => {
@@ -72,10 +69,44 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
+    // Восстанавливаем скролл ДО изменения состояния
+    if (savedScrollY >= 0) {
+      // Отключаем smooth scrolling ПОЛНОСТЬЮ
+      const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      
+      // Убираем блокировку скролла
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      
+      // СРАЗУ восстанавливаем позицию скролла
+      window.scrollTo(0, savedScrollY);
+      
+      // Убираем класс modal-open
+      document.documentElement.classList.remove('modal-open');
+      
+      // Возвращаем оригинальный scroll behavior через короткое время
+      setTimeout(() => {
+        document.documentElement.style.scrollBehavior = originalScrollBehavior;
+      }, 100);
+    }
+    
+    // Теперь закрываем модалку
     setIsModalOpen(false);
-    setSelectedCaseSlug(null);
+    // Очищаем slug с небольшой задержкой для плавного закрытия
+    setTimeout(() => {
+      setSelectedCaseSlug(null);
+    }, 100);
   };
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
+  const toggleModal = () => {
+    if (isModalOpen) {
+      closeModal();
+    } else {
+      openModal();
+    }
+  };
   
   const openCaseModal = (slug: string) => {
     setSelectedCaseSlug(slug);

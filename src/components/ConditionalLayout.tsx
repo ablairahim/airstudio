@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { usePathname } from 'next/navigation';
 import { ClientLayout } from './ClientLayout';
 import { Footer } from './Footer';
 import { ModalProvider } from '../contexts/ModalContext';
+import { LoadingProvider } from '../contexts/LoadingContext';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -12,12 +13,6 @@ interface ConditionalLayoutProps {
 
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const isStudioRoute = pathname?.startsWith('/studio');
 
   // For studio routes, render children without any wrapper
@@ -25,21 +20,16 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
     return <>{children}</>;
   }
 
-  // For regular routes, always wrap with ModalProvider
+  // For regular routes, wrap with LoadingProvider and other providers
   return (
-    <ModalProvider>
-      {!isClient ? (
-        // During SSR/hydration, render minimal layout
-        <>{children}</>
-      ) : (
-        // After hydration, render full layout
-        <>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
-          <Footer />
-        </>
-      )}
-    </ModalProvider>
+    <LoadingProvider>
+      <ModalProvider>
+        {/* Always render ClientLayout with LoadingScreen first */}
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        <Footer />
+      </ModalProvider>
+    </LoadingProvider>
   );
 } 

@@ -201,7 +201,7 @@ export const designSystem = {
 export const siteSettings = {
   // Set to false to freeze cover videos on main page (WorkSection)
   // Change to true to enable autoplay for cover videos
-  ENABLE_COVER_VIDEO_AUTOPLAY: false,
+  ENABLE_COVER_VIDEO_AUTOPLAY: true,
   
   // Set to false to freeze all content videos inside case studies
   // Change to true to enable autoplay for content videos

@@ -1,10 +1,21 @@
 import { defineType, defineField } from 'sanity'
 
+
 export const caseStudy = defineType({
   name: 'caseStudy',
   title: 'Case Study',
   type: 'document',
   fields: [
+    // Order for sorting - higher numbers appear first
+    defineField({
+      name: 'order',
+      title: 'Order (1-9)',
+      type: 'number',
+      description: 'Higher numbers appear first in the grid. Use 1-9 for easy sorting.',
+      validation: (Rule) => Rule.required().min(1).max(9),
+      initialValue: 1,
+    }),
+
     // Slug for URL
     defineField({
       name: 'slug',
@@ -412,6 +423,7 @@ export const caseStudy = defineType({
                             title: 'URL',
                             name: 'href',
                             type: 'url',
+                            validation: (Rule) => Rule.required()
                           },
                         ],
                       },
@@ -432,6 +444,72 @@ export const caseStudy = defineType({
                 : ''
               return {
                 title: title || 'Text Section',
+                subtitle: plainText.slice(0, 100) + (plainText.length > 100 ? '...' : ''),
+              }
+            },
+          },
+        },
+
+        // Paragraph block (text only, no heading) - 24px size
+        {
+          type: 'object',
+          name: 'paragraphBlock',
+          title: 'Paragraph',
+          fields: [
+            {
+              name: 'text',
+              title: 'Text',
+              type: 'array',
+              of: [
+                {
+                  type: 'block',
+                  styles: [
+                    { title: 'Normal', value: 'normal' },
+                    { title: 'H1', value: 'h1' },
+                    { title: 'H2', value: 'h2' },
+                    { title: 'H3', value: 'h3' },
+                    { title: 'Quote', value: 'blockquote' },
+                  ],
+                  lists: [
+                    { title: 'Bullet', value: 'bullet' },
+                    { title: 'Numbered', value: 'number' },
+                  ],
+                  marks: {
+                    decorators: [
+                      { title: 'Strong', value: 'strong' },
+                      { title: 'Emphasis', value: 'em' },
+                      { title: 'Code', value: 'code' },
+                    ],
+                    annotations: [
+                      {
+                        title: 'URL',
+                        name: 'link',
+                        type: 'object',
+                        fields: [
+                          {
+                            title: 'URL',
+                            name: 'href',
+                            type: 'url',
+                            validation: (Rule) => Rule.required()
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {
+              text: 'text',
+            },
+            prepare({ text }) {
+              const plainText = text && text.length > 0 
+                ? text[0].children?.map((child: any) => child.text).join('') || ''
+                : ''
+              return {
+                title: 'Paragraph',
                 subtitle: plainText.slice(0, 100) + (plainText.length > 100 ? '...' : ''),
               }
             },
@@ -508,6 +586,51 @@ export const caseStudy = defineType({
               return {
                 title: 'Video',
                 subtitle: title || 'Autoplay video block',
+                media: media || null,
+              }
+            },
+          },
+        },
+
+        // Blurred Images with Tooltip
+        {
+          type: 'object',
+          name: 'blurredImageBlock',
+          title: 'Blurred Image (NDA)',
+          fields: [
+            {
+              name: 'image',
+              title: 'Image (will be blurred)',
+              type: 'image',
+              options: {
+                hotspot: true,
+              },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'tooltipText',
+              title: 'Tooltip Text',
+              type: 'text',
+              description: 'Text shown on hover (explain why image is blurred)',
+              initialValue: 'Due to a Non-Disclosure Agreement, I can\'t reveal any more details about this redesign project. But if you want to know more about the process, my role, the team, and the overall project in general - shoot me an email, and let\'s have a chat <3',
+            },
+          ],
+          preview: {
+            select: {
+              media: 'image',
+              title: 'image.alt',
+              tooltip: 'tooltipText',
+            },
+            prepare({ media, title, tooltip }) {
+              return {
+                title: 'Blurred Image (NDA)',
+                subtitle: title || tooltip?.slice(0, 50) + '...' || 'NDA protected content',
                 media: media || null,
               }
             },

@@ -2,31 +2,25 @@
 
 ## Current Status: 
 
-- **Cover Videos** (on main page): **DISABLED** ❌ 
+- **Cover Videos** (on main page): **ENABLED** ✅ 
 - **Content Videos** (inside case studies): **ENABLED** ✅
 
-## What's Frozen:
+## What Works:
 
-- ✅ **Cover videos on homepage** are frozen (show first frame)
-- ✅ **Much faster homepage loading**  
-- ✅ **Less bandwidth usage**
-- ✅ **Better mobile performance**
+- ✅ **Cover videos on homepage** autoplay normally
+- ✅ **Videos inside case studies** autoplay normally
+- ✅ **Full video functionality** everywhere
 
-## What Still Works:
-
-- ✅ **Videos inside case studies** still autoplay normally
-- ✅ **Full functionality** when viewing individual cases
-
-## To Enable Cover Video Autoplay:
+## To Disable Cover Video Autoplay:
 
 1. Open `src/lib/design-system.ts`
 2. Find this line:
 ```typescript
-ENABLE_COVER_VIDEO_AUTOPLAY: false,
+ENABLE_COVER_VIDEO_AUTOPLAY: true,
 ```
 3. Change it to:
 ```typescript
-ENABLE_COVER_VIDEO_AUTOPLAY: true,
+ENABLE_COVER_VIDEO_AUTOPLAY: false,
 ```
 
 ## To Disable Content Videos:

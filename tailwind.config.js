@@ -67,15 +67,15 @@ module.exports = {
       },
       
       fontSize: {
-        'h1': ['3rem', { letterSpacing: '-0.05em', fontWeight: '500' }],        // 48px
-        'h2': ['2.25rem', { letterSpacing: '-0.04em', fontWeight: '500' }],     // 36px
-        'h3': ['1.5rem', { letterSpacing: '-0.04em', fontWeight: '600' }],      // 24px
-        'paragraph': ['1.5rem', { letterSpacing: '-0.04em', fontWeight: '500' }], // 24px
-        'body1': ['1.125rem', { letterSpacing: '-0.04em', fontWeight: '500' }], // 18px
-        'tagLink': ['1.125rem', { letterSpacing: '-0.04em', fontWeight: '500' }], // 18px
-        'tag': ['1rem', { letterSpacing: '-0.04em', fontWeight: '500' }],        // 16px
-        'prompt': ['1rem', { letterSpacing: '-0.04em', fontWeight: '400' }],     // 16px
-        'button': ['1.125rem', { letterSpacing: '-0.07em', fontWeight: '500' }], // 18px
+        'h1': ['3rem', { letterSpacing: '-0.03em', fontWeight: '500' }],        // 48px
+        'h2': ['2.25rem', { letterSpacing: '-0.03em', fontWeight: '500' }],     // 36px
+        'h3': ['1.5rem', { letterSpacing: '-0.03em', fontWeight: '600' }],      // 24px
+        'paragraph': ['1.5rem', { letterSpacing: '-0.03em', fontWeight: '500' }], // 24px
+        'body1': ['1.125rem', { letterSpacing: '-0.03em', fontWeight: '500' }], // 18px
+        'tagLink': ['1.125rem', { letterSpacing: '-0.03em', fontWeight: '500' }], // 18px
+        'tag': ['1rem', { letterSpacing: '-0.03em', fontWeight: '500' }],        // 16px
+        'prompt': ['1rem', { letterSpacing: '-0.03em', fontWeight: '400' }],     // 16px
+        'button': ['1.125rem', { letterSpacing: '-0.03em', fontWeight: '500' }], // 18px
       },
       
       // Animation durations

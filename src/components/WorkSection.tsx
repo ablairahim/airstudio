@@ -5,61 +5,82 @@ import { designTokens } from '../lib/design-tokens';
 import { siteSettings } from '../lib/design-system';
 import { client } from '../sanity/lib/client';
 import { useModal } from '../contexts/ModalContext';
+import { useLoading } from '../contexts/LoadingContext';
 
-// Inline компонент для медиа (видео или изображение)
-function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12' }: { 
+// Inline компонент для медиа (изображение по умолчанию, видео при hover или на мобилке при scroll)
+function CaseStudyMedia({ caseStudy, aspectRatio = '16 / 12', isHovered, isVisible, isMobile }: { 
   caseStudy: CaseStudyPreview; 
   aspectRatio?: string;
+  isHovered?: boolean;
+  isVisible?: boolean;
+  isMobile?: boolean;
 }) {
-  // Видео имеет приоритет над изображением
-  if (caseStudy.coverVideo?.asset?.url) {
-    return (
-      <video
-        src={caseStudy.coverVideo.asset.url}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          display: 'block',
-        }}
-        autoPlay={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY}
-        muted
-        loop={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY}
-        playsInline
-        preload={siteSettings.ENABLE_COVER_VIDEO_AUTOPLAY ? 'auto' : 'metadata'}
-      />
-    );
-  }
-  
-  // Fallback на изображение
-  if (caseStudy.cover?.asset?.url) {
-    return (
-      <img
-        src={caseStudy.cover.asset.url}
-        alt={caseStudy.cover.alt || caseStudy.title}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          display: 'block',
-        }}
-      />
-    );
-  }
-  
-  // Fallback на placeholder
+  // Показываем видео если:
+  // - На десктопе при hover
+  // - На мобилке когда элемент видим в viewport
+  const shouldShowVideo = caseStudy.coverVideo?.asset?.url && (
+    (isMobile && isVisible) || (!isMobile && isHovered)
+  );
+
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: designTokens.colors.grey500,
-      color: designTokens.colors.white,
-      ...designTokens.textStyles.body1,
-    }}>
-      No Cover Media
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* Статичное изображение */}
+      {caseStudy.cover?.asset?.url && (
+        <img
+          src={caseStudy.cover.asset.url}
+          alt={caseStudy.cover.alt || caseStudy.title}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            opacity: shouldShowVideo ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        />
+      )}
+      
+      {/* Видео */}
+      {shouldShowVideo && (
+        <video
+          src={caseStudy.coverVideo.asset.url}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            opacity: 0,
+            animation: 'fadeInVideo 0.3s ease-in-out forwards',
+          }}
+          autoPlay={true}
+          muted
+          loop={true}
+          playsInline
+          preload="metadata"
+        />
+      )}
+      
+      {/* Fallback на placeholder если нет медиа */}
+      {!caseStudy.cover?.asset?.url && !caseStudy.coverVideo?.asset?.url && (
+        <div style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: designTokens.colors.grey500,
+          color: designTokens.colors.white,
+          ...designTokens.textStyles.body1,
+        }}>
+          No Cover Media
+        </div>
+      )}
     </div>
   );
 }
@@ -108,6 +129,7 @@ interface CaseStudyPreview {
   summary?: string
   slug: { current: string }
   tags?: string[]
+  order?: number
   cover?: {
     asset: { url: string }
     alt?: string
@@ -119,11 +141,46 @@ interface CaseStudyPreview {
   metrics?: Array<{ value: string; label: string }>
 }
 
+interface LoomVideo {
+  _id: string;
+  title: string;
+  description?: string;
+  loomUrl: string;
+  embedUrl?: string;
+  tags?: string[];
+  order?: number;
+  isActive?: boolean;
+}
+
 export function WorkSection() {
   const [caseStudies, setCaseStudies] = useState<CaseStudyPreview[]>([]);
+  const [loomVideos, setLoomVideos] = useState<LoomVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [hoveredCaseId, setHoveredCaseId] = useState<string | null>(null);
+  const [visibleCaseIds, setVisibleCaseIds] = useState<Set<string>>(new Set());
   const { openCaseModal } = useModal();
+  const { isFirstLoad, setFirstLoadComplete } = useLoading();
+
+  // Добавляем CSS keyframes для анимации видео
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeInVideo {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
 
 
@@ -139,32 +196,53 @@ export function WorkSection() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Intersection Observer для мобилки
   useEffect(() => {
+    if (isLargeScreen) return; // Только для мобилки
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const caseId = entry.target.getAttribute('data-case-id');
+          if (caseId) {
+            setVisibleCaseIds(prev => {
+              const newSet = new Set(prev);
+              if (entry.isIntersecting) {
+                newSet.add(caseId);
+              } else {
+                newSet.delete(caseId);
+              }
+              return newSet;
+            });
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5, // 50% видимости для запуска видео
+      }
+    );
+
+    // Наблюдаем за всеми кейсами
+    const caseElements = document.querySelectorAll('[data-case-id]');
+    caseElements.forEach(element => observer.observe(element));
+
+    return () => {
+      caseElements.forEach(element => observer.unobserve(element));
+    };
+  }, [isLargeScreen, caseStudies]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
     async function fetchCaseStudies() {
       try {
-        const query = `
-          *[_type == "caseStudy"] {
-            _id,
-            title,
-            summary,
-            slug,
-            tags,
-            cover {
-              asset-> {
-                url
-              },
-              alt
-            },
-            coverVideo {
-              asset-> {
-                url
-              }
-            },
-            "metrics": content[_type == "metricsCallout"][0].metrics[0..2],
-            _updatedAt
-          }
-        `;
-        const data = await client.fetch(query);
+        const response = await fetch('/api/case-studies');
+        const result = await response.json();
+        const data = result.data;
+        
+        if (!isMounted) return; // Предотвращаем обновление состояния если компонент размонтирован
         
         if (data.length > 0) {
           // Ищем кейс с нужным названием и помещаем его первым
@@ -190,6 +268,7 @@ export function WorkSection() {
             summary: 'This is a test case study to verify the system works',
             slug: { current: 'test-case' },
             tags: ['ux-ui-design', 'experiment'],
+            order: 1,
             cover: undefined,
             metrics: [
               { value: '+30%', label: 'Retention' },
@@ -200,6 +279,8 @@ export function WorkSection() {
         }
         
       } catch (error) {
+        if (!isMounted) return;
+        
         // Устанавливаем тестовые данные при ошибке
         const testCaseStudy = {
           _id: 'test-case-error',
@@ -207,6 +288,7 @@ export function WorkSection() {
           summary: 'This is a test case study - error occurred while fetching from CMS',
           slug: { current: 'test-case-error' },
           tags: ['ux-ui-design'],
+          order: 1,
           cover: undefined,
           metrics: [
             { value: '+30%', label: 'Retention' }
@@ -214,55 +296,29 @@ export function WorkSection() {
         };
         setCaseStudies([testCaseStudy]);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchCaseStudies();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleCaseStudyClick = (caseStudy: CaseStudyPreview) => {
-
     openCaseModal(caseStudy.slug.current);
   };
 
-  if (loading) {
-    return (
-          <section 
-      id="work"
-      style={{
-        minHeight: '100vh',
-        paddingTop: designTokens.spacing.xxxl,     // 80px
-        paddingBottom: designTokens.spacing.xxxl,  // 80px
-        paddingLeft: designTokens.spacing.m,       // 20px
-        paddingRight: designTokens.spacing.m,      // 20px
-        backgroundColor: designTokens.colors.grey100,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-        <div 
-          style={{ 
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: designTokens.spacing.l,
-          }}
-        >
-                  <p style={{
-          ...designTokens.textStyles.h3,
-          color: designTokens.colors.grey500,
-          textAlign: 'center',
-        }}>
-          Loading case studies...
-        </p>
-        </div>
-      </section>
-    );
-  }
+  // Убираем LoadingScreen - он блокирует новый Hero блок
+  useEffect(() => {
+    if (isFirstLoad && !loading) {
+      setFirstLoadComplete();
+    }
+  }, [isFirstLoad, loading, setFirstLoadComplete]);
 
   return (
     <section 
@@ -273,7 +329,8 @@ export function WorkSection() {
         paddingBottom: designTokens.spacing.xxxl,  // 80px
         paddingLeft: designTokens.spacing.m,       // 20px
         paddingRight: designTokens.spacing.m,      // 20px
-        backgroundColor: designTokens.colors.grey100,
+        backgroundColor: designTokens.colors.grey50,
+        borderBottom: `1px solid rgba(0, 0, 0, 0.4)`, // Дивайдер внизу секции
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -286,72 +343,44 @@ export function WorkSection() {
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: designTokens.spacing.xxl,  // 40px between rows
+          gap: designTokens.spacing.xxxl,  // 80px между заголовком и сеткой
         }}
       >
+        {/* Заголовок work. */}
+        <h2 style={{
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: '20px',
+          fontWeight: 400,
+          lineHeight: '110%',
+                          letterSpacing: '-0.03em',
+          color: designTokens.colors.black,
+          margin: 0,
+        }}>
+          work.
+        </h2>
+
         {/* Case Studies Grid - First row: 2 large, then rows of 4 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xxl }}>
           
-          {/* First row - Loom placeholder + first CMS case study */}
+          {/* First row - 2 large case studies */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: isLargeScreen ? '1fr 1fr' : '1fr',
-            gap: designTokens.spacing.l,
+            gap: designTokens.spacing.xl,
           }}>
-            {/* Loom Placeholder - not from CMS */}
-            <div style={{
-              overflow: 'hidden',
-              cursor: 'pointer',
-              position: 'relative',
-            }}>
-              {/* Loom Video */}
-              <div style={{
-                position: 'relative',
-                aspectRatio: '16 / 12',
-                backgroundColor: designTokens.colors.grey500,
-              }}>
-                <iframe
-                  src="https://www.loom.com/embed/0483bdca78c94ab7bdf92bff5f03d19c?sid=6091c807-9301-4ace-a196-af8e30bd4ae2"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                  }}
-                  allowFullScreen
-                />
-              </div>
-
-                            {/* Loom Content */}
-              <div style={{ paddingTop: designTokens.spacing.l }}>
-                <h3 style={{
-                  ...designTokens.textStyles.h3,
-                  color: designTokens.colors.black,
-                  marginBottom: designTokens.spacing.xs,
-                  lineHeight: '1.2',
-                }}>
-                  Ablai Rakhimbekov is a fractional product designer, narrative architect, and early-stage "chaos tamer" with 4+ years launching digital systems.
-                </h3>
-                
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: designTokens.spacing.xs,
-                  marginBottom: designTokens.spacing.xs,
-                }}>
-                  <CaseStudyTag tag="ux-ui-design" />
-                </div>
-              </div>
-            </div>
-
-            {/* First CMS case study */}
-            {caseStudies.length > 0 && (
-                             <div
-                 onClick={() => handleCaseStudyClick(caseStudies[0])}
-                 style={{
-                   overflow: 'hidden',
-                   cursor: 'pointer',
-                   position: 'relative',
-                 }}
+            {/* First 2 case studies - large */}
+            {caseStudies.slice(0, 2).map((caseStudy) => (
+              <div
+                key={caseStudy._id}
+                data-case-id={caseStudy._id}
+                onClick={() => handleCaseStudyClick(caseStudy)}
+                onMouseEnter={() => setHoveredCaseId(caseStudy._id)}
+                onMouseLeave={() => setHoveredCaseId(null)}
+                style={{
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  position: 'relative',
+                }}
               >
                 {/* Cover Image */}
                 <div style={{
@@ -359,7 +388,12 @@ export function WorkSection() {
                   aspectRatio: '16 / 12',
                   backgroundColor: designTokens.colors.grey500,
                 }}>
-                  <CaseStudyMedia caseStudy={caseStudies[0]} />
+                  <CaseStudyMedia 
+                    caseStudy={caseStudy} 
+                    isHovered={hoveredCaseId === caseStudy._id}
+                    isVisible={visibleCaseIds.has(caseStudy._id)}
+                    isMobile={!isLargeScreen}
+                  />
                 </div>
 
                 {/* Content below image */}
@@ -371,11 +405,11 @@ export function WorkSection() {
                     marginBottom: designTokens.spacing.xs,
                     lineHeight: '1.2',
                   }}>
-                    {caseStudies[0].title}
+                    {caseStudy.title}
                   </h3>
 
                   {/* Summary under title */}
-                  {caseStudies[0].summary && (
+                  {caseStudy.summary && (
                     <p style={{
                       ...designTokens.textStyles.tag,
                       color: designTokens.colors.grey800,
@@ -383,32 +417,32 @@ export function WorkSection() {
                       margin: 0,
                       marginBottom: designTokens.spacing.xs,
                     }}>
-                      {caseStudies[0].summary}
+                      {caseStudy.summary}
                     </p>
                   )}
 
                   {/* Tags under summary */}
-                  {caseStudies[0].tags && Array.isArray(caseStudies[0].tags) && caseStudies[0].tags.length > 0 && (
+                  {caseStudy.tags && Array.isArray(caseStudy.tags) && caseStudy.tags.length > 0 && (
                     <div style={{
                       display: 'flex',
                       flexWrap: 'wrap',
                       gap: designTokens.spacing.xs,
                     }}>
-                      {caseStudies[0].tags.slice(0, 2).map((tag, tagIndex) => (
+                      {caseStudy.tags.slice(0, 2).map((tag, tagIndex) => (
                         <CaseStudyTag key={tagIndex} tag={tag} />
                       ))}
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            ))}
           </div>
 
           {/* Remaining rows - 4 case studies per row */}
-          {caseStudies.length > 1 && (
+          {caseStudies.length > 2 && (
             <>
-              {Array.from({ length: Math.ceil((caseStudies.length - 1) / 4) }).map((_, rowIndex) => {
-                const startIndex = 1 + rowIndex * 4;
+              {Array.from({ length: Math.ceil((caseStudies.length - 2) / 4) }).map((_, rowIndex) => {
+                const startIndex = 2 + rowIndex * 4;
                 const endIndex = Math.min(startIndex + 4, caseStudies.length);
                 const rowCases = caseStudies.slice(startIndex, endIndex);
                 
@@ -416,12 +450,15 @@ export function WorkSection() {
                   <div key={`row-${rowIndex}`} style={{
                     display: 'grid',
                     gridTemplateColumns: isLargeScreen ? 'repeat(4, 1fr)' : '1fr',
-                    gap: designTokens.spacing.l,
+                    gap: designTokens.spacing.xl,
                   }}>
                     {rowCases.map((caseStudy) => (
                                           <div
                       key={caseStudy._id}
+                      data-case-id={caseStudy._id}
                       onClick={() => handleCaseStudyClick(caseStudy)}
+                      onMouseEnter={() => setHoveredCaseId(caseStudy._id)}
+                      onMouseLeave={() => setHoveredCaseId(null)}
                       style={{
                         overflow: 'hidden',
                         cursor: 'pointer',
@@ -434,7 +471,12 @@ export function WorkSection() {
                           aspectRatio: '16 / 12',
                           backgroundColor: designTokens.colors.grey500,
                         }}>
-                                                    <CaseStudyMedia caseStudy={caseStudy} />
+                                                    <CaseStudyMedia 
+                            caseStudy={caseStudy} 
+                            isHovered={hoveredCaseId === caseStudy._id}
+                            isVisible={visibleCaseIds.has(caseStudy._id)}
+                            isMobile={!isLargeScreen}
+                          />
                         </div>
 
                                               {/* Content below image */}

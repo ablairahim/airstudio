@@ -48,9 +48,9 @@ export function BenefitsSection() {
     <section 
       style={{
         padding: designTokens.spacing.m,          // 16px как у Hero со всех сторон
-        paddingTop: '3.375rem',                   // 54px сверху
-        paddingBottom: '3.375rem',                // 54px снизу
-        backgroundColor: designTokens.colors.grey100, // Как у WorkSection
+        paddingTop: '6.75rem',                    // 108px сверху (54px * 2)
+        paddingBottom: '6.75rem',                 // 108px снизу (54px * 2)
+        backgroundColor: designTokens.colors.grey100, // Серый фон как у work секции
         borderBottom: `1px solid rgba(0, 0, 0, 0.4)`, // 40% прозрачности
         display: 'flex',
         flexDirection: 'column',
@@ -62,8 +62,24 @@ export function BenefitsSection() {
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
+          gap: designTokens.spacing.xxxl, // 80px между заголовком и сеткой
         }}
       >
+        {/* Заголовок approach. */}
+        <h2 
+          style={{
+            fontFamily: 'var(--font-funnel-display), sans-serif',
+            fontSize: '20px',
+            fontWeight: 400,
+            lineHeight: '110%',
+                          letterSpacing: '-0.03em',
+            color: designTokens.colors.black,
+            margin: 0,
+          }}
+        >
+          approach.
+        </h2>
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: isSmallScreen ? '1fr' : (isLargeScreen ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)'),

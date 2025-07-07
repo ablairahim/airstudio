@@ -1,11 +1,67 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PortableText } from '@portabletext/react';
 import { CaseStudy, ContentBlock } from '../lib/sanity';
 import { designTokens } from '../lib/design-tokens';
 import { siteSettings } from '@/lib/design-system';
+
+// Компонент для отображения cover media (видео или изображение)
+function CoverMedia({ caseStudy }: { caseStudy: CaseStudy }) {
+  // Видео имеет приоритет над изображением
+  if (caseStudy.coverVideo?.asset?.url) {
+    return (
+      <div style={{
+        marginBottom: '2rem', // 32px
+        width: '100%',
+        overflow: 'hidden',
+        borderRadius: '16px',
+      }}>
+        <video
+          src={caseStudy.coverVideo.asset.url}
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+          }}
+          autoPlay={siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY}
+          muted
+          loop={siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY}
+          playsInline
+          preload={siteSettings.ENABLE_CONTENT_VIDEO_AUTOPLAY ? 'auto' : 'metadata'}
+        />
+      </div>
+    );
+  }
+  
+  // Fallback на изображение
+  if (caseStudy.cover?.asset?.url) {
+    return (
+      <div style={{
+        marginBottom: '2rem', // 32px
+        overflow: 'hidden',
+        borderRadius: '16px',
+      }}>
+        <Image
+          src={caseStudy.cover.asset.url}
+          alt={caseStudy.cover.alt || caseStudy.title}
+          width={800}
+          height={600}
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+          }}
+        />
+      </div>
+    );
+  }
+  
+  // Если нет cover media, не рендерим ничего
+  return null;
+}
 
 // Utility function to clean block content from null marks
 function cleanBlockContent(content: any[]): any[] {
@@ -30,8 +86,81 @@ function cleanBlockContent(content: any[]): any[] {
   });
 }
 
+// Функция для обработки markdown-стиля ссылок в тексте
+function processMarkdownLinks(text: string): React.ReactNode[] {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Добавляем текст до ссылки
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    // Добавляем ссылку
+    const linkText = match[1];
+    const linkUrl = match[2];
+    parts.push(
+      <Link
+        key={match.index}
+        href={linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          ...designTokens.textStyles.modalApproachText,
+          color: designTokens.colors.grey800,
+          textDecoration: 'none',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          border: `1px solid ${designTokens.colors.grey800}`,
+          borderRadius: '4px',
+          padding: '0 4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          verticalAlign: 'baseline',
+          lineHeight: 'inherit',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
+      >
+        <span>{linkText}</span>
+        <svg 
+          width="12" 
+          height="12" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2"
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M7 17L17 7M17 7H7M17 7V17" />
+        </svg>
+      </Link>
+    );
+
+    lastIndex = linkRegex.lastIndex;
+  }
+
+  // Добавляем оставшийся текст
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : [text];
+}
+
 interface CaseStudyModalProps {
   caseStudy: CaseStudy;
+  onClose: () => void;
 }
 
 // Компонент для рендеринга метрик
@@ -167,51 +296,46 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
     block: {
       normal: ({ children }: any) => (
         <p style={{
-          ...designTokens.textStyles.body1,
+          ...designTokens.textStyles.modalCaseText,
           color: designTokens.colors.grey800,
           marginBottom: designTokens.spacing.m,
-          lineHeight: '1.4',
         }}>
           {children}
         </p>
       ),
       h1: ({ children }: any) => (
         <h2 style={{
-          ...designTokens.textStyles.h2,
+          ...designTokens.textStyles.modalCaseHeading,
           color: designTokens.colors.black,
           marginBottom: designTokens.spacing.m,
           marginTop: designTokens.spacing.l,
-          lineHeight: '1.1',
         }}>
           {children}
         </h2>
       ),
       h2: ({ children }: any) => (
         <h3 style={{
-          ...designTokens.textStyles.h3,
+          ...designTokens.textStyles.modalCaseHeading,
           color: designTokens.colors.black,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
-          lineHeight: '1.1',
         }}>
           {children}
         </h3>
       ),
       h3: ({ children }: any) => (
         <h4 style={{
-          ...designTokens.textStyles.body1,
+          ...designTokens.textStyles.modalCaseHeading,
           color: designTokens.colors.black,
-          fontWeight: 600,
           marginBottom: designTokens.spacing.s,
           marginTop: designTokens.spacing.m,
-          lineHeight: '1.2',
         }}>
           {children}
         </h4>
       ),
       blockquote: ({ children }: any) => (
         <blockquote style={{
-          ...designTokens.textStyles.body1,
+          ...designTokens.textStyles.modalCaseTextCompact,
           color: designTokens.colors.grey800,
           fontStyle: 'italic',
           borderLeft: `4px solid ${designTokens.colors.grey500}`,
@@ -226,7 +350,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
     list: {
       bullet: ({ children }: any) => (
         <ul style={{
-          ...designTokens.textStyles.body1,
+          ...designTokens.textStyles.modalCaseTextCompact,
           color: designTokens.colors.grey800,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
@@ -236,7 +360,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
       ),
       number: ({ children }: any) => (
         <ol style={{
-          ...designTokens.textStyles.body1,
+          ...designTokens.textStyles.modalCaseTextCompact,
           color: designTokens.colors.grey800,
           marginBottom: designTokens.spacing.m,
           paddingLeft: designTokens.spacing.l,
@@ -249,7 +373,6 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
       bullet: ({ children }: any) => (
         <li style={{
           marginBottom: designTokens.spacing.xs,
-          lineHeight: '1.4',
         }}>
           {children}
         </li>
@@ -257,7 +380,6 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
       number: ({ children }: any) => (
         <li style={{
           marginBottom: designTokens.spacing.xs,
-          lineHeight: '1.4',
         }}>
           {children}
         </li>
@@ -307,7 +429,7 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
     <div style={{ marginBottom: designTokens.spacing.xl }}>
       {heading && (
         <h3 style={{
-          ...designTokens.textStyles.h3,
+          ...designTokens.textStyles.modalCaseHeading,
           color: designTokens.colors.black,
           marginBottom: designTokens.spacing.m,
         }}>
@@ -322,114 +444,886 @@ function TextSection({ heading, text }: { heading?: string; text?: any[] }) {
   );
 }
 
-// Компонент для Link блока
-function LinkBlock({ text, url }: { text: string; url: string }) {
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: designTokens.spacing.s,
-      marginBottom: designTokens.spacing.xl,
-    }}>
-      <a 
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          ...designTokens.textStyles.body1,
+// Компонент для параграфа без заголовка с размером шрифта 24px
+function ParagraphBlock({ text }: { text?: any[] }) {
+  if (!text) return null;
+
+  const portableTextComponents = {
+    block: {
+      normal: ({ children }: any) => (
+        <p style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          marginBottom: designTokens.spacing.m,
+        }}>
+          {children}
+        </p>
+      ),
+      h1: ({ children }: any) => (
+        <h2 style={{
+          ...designTokens.textStyles.modalCaseHeading,
           color: designTokens.colors.black,
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: designTokens.spacing.s,
-        }}
-      >
-        {text || url}
-        <span style={{ fontSize: '1.125rem' }}>→</span>
-      </a>
+          marginBottom: designTokens.spacing.m,
+          marginTop: designTokens.spacing.l,
+        }}>
+          {children}
+        </h2>
+      ),
+      h2: ({ children }: any) => (
+        <h3 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h3>
+      ),
+      h3: ({ children }: any) => (
+        <h4 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h4>
+      ),
+      blockquote: ({ children }: any) => (
+        <blockquote style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          fontStyle: 'italic',
+          borderLeft: `4px solid ${designTokens.colors.grey500}`,
+          paddingLeft: designTokens.spacing.m,
+          marginLeft: 0,
+          marginBottom: designTokens.spacing.m,
+        }}>
+          {children}
+        </blockquote>
+      ),
+    },
+    list: {
+      bullet: ({ children }: any) => (
+        <ul style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          marginBottom: designTokens.spacing.m,
+          paddingLeft: designTokens.spacing.l,
+        }}>
+          {children}
+        </ul>
+      ),
+      number: ({ children }: any) => (
+        <ol style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.5',        // 36px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          marginBottom: designTokens.spacing.m,
+          paddingLeft: designTokens.spacing.l,
+        }}>
+          {children}
+        </ol>
+      ),
+    },
+    listItem: {
+      bullet: ({ children }: any) => (
+        <li style={{
+          marginBottom: designTokens.spacing.xs,
+        }}>
+          {children}
+        </li>
+      ),
+      number: ({ children }: any) => (
+        <li style={{
+          marginBottom: designTokens.spacing.xs,
+        }}>
+          {children}
+        </li>
+      ),
+    },
+    marks: {
+      strong: ({ children }: any) => (
+        <strong style={{ fontWeight: 600 }}>{children}</strong>
+      ),
+      em: ({ children }: any) => (
+        <em style={{ fontStyle: 'italic' }}>{children}</em>
+      ),
+      code: ({ children }: any) => (
+        <code style={{
+          backgroundColor: designTokens.colors.grey100,
+          padding: '2px 4px',
+          borderRadius: '3px',
+          fontFamily: 'monospace',
+          fontSize: '0.9em',
+        }}>
+          {children}
+        </code>
+      ),
+      link: ({ children, value }: any) => (
+        <Link
+          href={value.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: designTokens.colors.black,
+            textDecoration: 'underline',
+          }}
+        >
+          {children}
+        </Link>
+      ),
+    },
+    unknownType: ({ value }: any) => {
+      return null;
+    },
+  }
+
+  const cleanedText = cleanBlockContent(text);
+
+  return (
+    <div style={{ marginBottom: designTokens.spacing.xl }}>
+      <PortableText 
+        value={cleanedText}
+        components={portableTextComponents}
+      />
     </div>
   );
 }
 
-// Компонент для Facts блока
+// Компонент для Link блока
+function LinkBlock({ text, url }: { text: string; url: string }) {
+  return (
+    <InlineLink text={text} url={url} />
+  );
+}
+
+// Компонент для группы ссылок, идущих подряд
+function LinkGroup({ links }: { links: Array<{ text: string; url: string }> }) {
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: designTokens.spacing.s,
+      marginBottom: designTokens.spacing.xl,
+    }}>
+      {links.map((link, index) => (
+        <LinkBlock key={index} text={link.text} url={link.url} />
+      ))}
+    </div>
+  );
+}
+
+// Компонент для Facts блока (старый формат - больше не используется)
 function FactsBlock({ client, year, role }: { client?: string; year?: string; role?: string }) {
-  if (!client && !year && !role) return null;
+  return null; // Не рендерим отдельный Facts блок
+}
+
+// Компонент для ссылки под фактами
+function InlineLink({ text, url }: { text: string; url: string }) {
+  return (
+    <a 
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        ...designTokens.textStyles.body1,
+        color: designTokens.colors.grey800,
+        textDecoration: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: designTokens.spacing.xs,
+        border: `1px solid ${designTokens.colors.grey800}`,
+        borderRadius: '4px',
+        padding: '0 4px', // Боковые паддинги 4px
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.backgroundColor = 'transparent';
+      }}
+    >
+      <span>{text || url}</span>
+      <svg 
+        width="16" 
+        height="16" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2"
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      >
+        <path d="M7 17L17 7M17 7H7M17 7V17" />
+      </svg>
+    </a>
+  );
+}
+
+// Новый инлайн Facts компонент для сетки с ссылками
+function InlineFactsBlock({ client, year, role, links }: { 
+  client?: string; 
+  year?: string; 
+  role?: string;
+  links?: Array<{ text: string; url: string }>;
+}) {
+  if (!client && !year && !role && (!links || links.length === 0)) return null;
 
   return (
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-      gap: designTokens.spacing.l,
-      marginBottom: designTokens.spacing.xl,
-      paddingBottom: designTokens.spacing.l,
-      borderBottom: `1px solid rgba(0, 0, 0, 0.1)`,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: designTokens.spacing.xs,
     }}>
       {client && (
-        <div>
-          <h4 style={{ 
-            fontFamily: designTokens.textStyles.body1.fontFamily,
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: designTokens.colors.grey500,
-            marginBottom: designTokens.spacing.xs,
-            marginTop: 0,
-          }}>
-            Client
-          </h4>
-          <p style={{ 
-            ...designTokens.textStyles.body1,
-            color: designTokens.colors.grey800,
-            margin: 0,
-            fontWeight: 500,
-          }}>
-            {client}
-          </p>
+        <div style={{
+          ...designTokens.textStyles.body1,
+          color: designTokens.colors.grey800,
+        }}>
+          <span style={{ fontWeight: 500 }}>Client:</span> {client}
         </div>
       )}
       {year && (
-        <div>
-          <h4 style={{ 
-            fontFamily: designTokens.textStyles.body1.fontFamily,
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: designTokens.colors.grey500,
-            marginBottom: designTokens.spacing.xs,
-            marginTop: 0,
-          }}>
-            Year
-          </h4>
-          <p style={{ 
-            ...designTokens.textStyles.body1,
-            color: designTokens.colors.grey800,
-            margin: 0,
-            fontWeight: 500,
-          }}>
-            {year}
-          </p>
+        <div style={{
+          ...designTokens.textStyles.body1,
+          color: designTokens.colors.grey800,
+        }}>
+          <span style={{ fontWeight: 500 }}>Year:</span> {year}
         </div>
       )}
       {role && (
-        <div>
-          <h4 style={{ 
-            fontFamily: designTokens.textStyles.body1.fontFamily,
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: designTokens.colors.grey500,
-            marginBottom: designTokens.spacing.xs,
-            marginTop: 0,
-          }}>
-            Role
-          </h4>
-          <p style={{ 
-            ...designTokens.textStyles.body1,
-            color: designTokens.colors.grey800,
-            margin: 0,
-            fontWeight: 500,
-          }}>
-            {role}
-          </p>
+        <div style={{
+          ...designTokens.textStyles.body1,
+          color: designTokens.colors.grey800,
+        }}>
+          <span style={{ fontWeight: 500 }}>Role:</span> {role}
         </div>
       )}
+      
+      {/* Ссылки под фактами */}
+      {links && links.length > 0 && (
+        <div style={{ 
+          marginTop: designTokens.spacing.s,
+          display: 'flex',
+          flexDirection: links.length === 2 ? 'row' : 'column',
+          gap: designTokens.spacing.xs,
+          flexWrap: 'wrap',
+          alignItems: 'flex-start',
+        }}>
+          {links.map((link, index) => (
+            <div key={index} style={{ flex: 'none' }}>
+              <InlineLink text={link.text} url={link.url} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Новый компонент для текстовой секции в сетке
+function TextSectionWithGrid({ 
+  heading, 
+  text, 
+  showFacts = false, 
+  factsData,
+  linksData,
+  isMobile = false
+}: { 
+  heading?: string; 
+  text?: any[]; 
+  showFacts?: boolean;
+  factsData?: { client?: string; year?: string; role?: string };
+  linksData?: Array<{ text: string; url: string }>;
+  isMobile?: boolean;
+}) {
+  if (!text) return null;
+
+  const portableTextComponents = {
+    block: {
+      normal: ({ children }: any) => {
+        // Если children это строка, обрабатываем markdown ссылки
+        if (typeof children === 'string') {
+          return (
+            <p style={{
+              ...designTokens.textStyles.modalApproachText,
+              color: designTokens.colors.grey800,
+              marginBottom: designTokens.spacing.m,
+            }}>
+              {processMarkdownLinks(children)}
+            </p>
+          );
+        }
+        
+        // Если children это массив, обрабатываем каждый элемент
+        const processedChildren = React.Children.map(children, (child, index) => {
+          if (typeof child === 'string') {
+            return processMarkdownLinks(child);
+          }
+          return child;
+        });
+
+        return (
+          <p style={{
+            ...designTokens.textStyles.modalApproachText,
+            color: designTokens.colors.grey800,
+            marginBottom: designTokens.spacing.m,
+          }}>
+            {processedChildren}
+          </p>
+        );
+      },
+      h1: ({ children }: any) => (
+        <h2 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.m,
+          marginTop: designTokens.spacing.l,
+        }}>
+          {children}
+        </h2>
+      ),
+      h2: ({ children }: any) => (
+        <h3 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h3>
+      ),
+      h3: ({ children }: any) => (
+        <h4 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h4>
+      ),
+    },
+         list: {
+       bullet: ({ children }: any) => (
+         <ul style={{
+           ...designTokens.textStyles.modalApproachText,
+           color: designTokens.colors.grey800,
+           marginBottom: designTokens.spacing.m,
+           paddingLeft: designTokens.spacing.l,
+         }}>
+           {children}
+         </ul>
+       ),
+       number: ({ children }: any) => (
+         <ol style={{
+           ...designTokens.textStyles.modalApproachText,
+           color: designTokens.colors.grey800,
+           marginBottom: designTokens.spacing.m,
+           paddingLeft: designTokens.spacing.l,
+         }}>
+           {children}
+         </ol>
+       ),
+     },
+     listItem: {
+       bullet: ({ children }: any) => {
+         const processedChildren = React.Children.map(children, (child, index) => {
+           if (typeof child === 'string') {
+             return processMarkdownLinks(child);
+           }
+           return child;
+         });
+
+         return (
+           <li style={{
+             ...designTokens.textStyles.modalApproachText,
+             color: designTokens.colors.grey800,
+             marginBottom: designTokens.spacing.xs,
+           }}>
+             {processedChildren}
+           </li>
+         );
+       },
+       number: ({ children }: any) => {
+         const processedChildren = React.Children.map(children, (child, index) => {
+           if (typeof child === 'string') {
+             return processMarkdownLinks(child);
+           }
+           return child;
+         });
+
+         return (
+           <li style={{
+             ...designTokens.textStyles.modalApproachText,
+             color: designTokens.colors.grey800,
+             marginBottom: designTokens.spacing.xs,
+           }}>
+             {processedChildren}
+           </li>
+         );
+       },
+     },
+    marks: {
+      strong: ({ children }: any) => (
+        <strong style={{ fontWeight: 600 }}>{children}</strong>
+      ),
+      em: ({ children }: any) => (
+        <em style={{ fontStyle: 'italic' }}>{children}</em>
+      ),
+    },
+    link: ({ value, children }: any) => (
+      <Link
+        href={value.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          ...designTokens.textStyles.modalApproachText,
+          color: designTokens.colors.grey800,
+          textDecoration: 'none',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          border: `1px solid ${designTokens.colors.grey800}`,
+          borderRadius: '4px',
+          padding: '0 4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          verticalAlign: 'baseline',
+          lineHeight: 'inherit',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
+      >
+        <span>{children}</span>
+        <svg 
+          width="12" 
+          height="12" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2"
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M7 17L17 7M17 7H7M17 7V17" />
+        </svg>
+      </Link>
+    ),
+  };
+
+  // Мобильная вертикальная компоновка
+  if (isMobile) {
+    return (
+      <div style={{
+        marginBottom: designTokens.spacing.xl,
+      }}>
+        {/* Facts блок на мобилке */}
+        {showFacts && factsData && (
+          <div style={{ marginBottom: designTokens.spacing.l }}>
+            <InlineFactsBlock 
+              client={factsData.client} 
+              year={factsData.year} 
+              role={factsData.role}
+              links={linksData}
+            />
+          </div>
+        )}
+
+        {/* Текстовый контент на мобилке */}
+        <div>
+          {heading && (
+            <h2 style={{
+              ...designTokens.textStyles.modalCaseHeading,
+              color: designTokens.colors.black,
+              marginBottom: designTokens.spacing.m,
+              marginTop: 0,
+            }}>
+              {heading}
+            </h2>
+          )}
+          <div style={{
+            ...designTokens.textStyles.modalApproachText,
+            color: designTokens.colors.grey800,
+          }}>
+            <PortableText 
+              value={cleanBlockContent(text)} 
+              components={portableTextComponents}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Десктопная grid компоновка
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1.20fr 0.6fr 1.10fr 1.10fr', // Facts, пустая, текст, текст
+      gap: designTokens.spacing.l,
+      marginBottom: designTokens.spacing.xl,
+    }}>
+      {/* Колонка 1: Facts (только если showFacts = true) */}
+      <div>
+        {showFacts && factsData && (
+          <InlineFactsBlock 
+            client={factsData.client} 
+            year={factsData.year} 
+            role={factsData.role}
+            links={linksData}
+          />
+        )}
+      </div>
+
+      {/* Колонка 2: Пустая */}
+      <div></div>
+
+      {/* Колонки 3-4: Текстовый контент */}
+      <div style={{ gridColumn: '3 / 5' }}>
+        {heading && (
+          <h2 style={{
+            ...designTokens.textStyles.modalCaseHeading,
+            color: designTokens.colors.black,
+            marginBottom: designTokens.spacing.m,
+            marginTop: 0,
+          }}>
+            {heading}
+          </h2>
+        )}
+                 <div style={{
+           ...designTokens.textStyles.modalApproachText,
+           color: designTokens.colors.grey800,
+         }}>
+           <PortableText 
+             value={cleanBlockContent(text)} 
+             components={portableTextComponents}
+           />
+         </div>
+      </div>
+    </div>
+  );
+}
+
+// Новый компонент для параграфа в сетке (24px шрифт)
+function ParagraphBlockWithGrid({ 
+  text, 
+  showFacts = false, 
+  factsData,
+  linksData,
+  isMobile = false
+}: { 
+  text?: any[]; 
+  showFacts?: boolean;
+  factsData?: { client?: string; year?: string; role?: string };
+  linksData?: Array<{ text: string; url: string }>;
+  isMobile?: boolean;
+}) {
+  if (!text) return null;
+
+  const portableTextComponents = {
+    block: {
+      normal: ({ children }: any) => {
+        // Если children это строка, обрабатываем markdown ссылки
+        if (typeof children === 'string') {
+          return (
+            <p style={{
+              fontSize: '1.5rem',       // 24px
+              lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+              fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+              fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+              letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+              color: designTokens.colors.grey800,
+              marginBottom: designTokens.spacing.m,
+            }}>
+              {processMarkdownLinks(children)}
+            </p>
+          );
+        }
+        
+        // Если children это массив, обрабатываем каждый элемент
+        const processedChildren = React.Children.map(children, (child, index) => {
+          if (typeof child === 'string') {
+            return processMarkdownLinks(child);
+          }
+          return child;
+        });
+
+        return (
+          <p style={{
+            fontSize: '1.5rem',       // 24px
+            lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+            fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+            fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+            letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+            color: designTokens.colors.grey800,
+            marginBottom: designTokens.spacing.m,
+          }}>
+            {processedChildren}
+          </p>
+        );
+      },
+      h1: ({ children }: any) => (
+        <h2 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.m,
+          marginTop: designTokens.spacing.l,
+        }}>
+          {children}
+        </h2>
+      ),
+      h2: ({ children }: any) => (
+        <h3 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h3>
+      ),
+      h3: ({ children }: any) => (
+        <h4 style={{
+          ...designTokens.textStyles.modalCaseHeading,
+          color: designTokens.colors.black,
+          marginBottom: designTokens.spacing.s,
+          marginTop: designTokens.spacing.m,
+        }}>
+          {children}
+        </h4>
+      ),
+    },
+    list: {
+      bullet: ({ children }: any) => (
+        <ul style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          marginBottom: designTokens.spacing.m,
+          paddingLeft: designTokens.spacing.l,
+        }}>
+          {children}
+        </ul>
+      ),
+      number: ({ children }: any) => (
+        <ol style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          marginBottom: designTokens.spacing.m,
+          paddingLeft: designTokens.spacing.l,
+        }}>
+          {children}
+        </ol>
+      ),
+    },
+    listItem: {
+      bullet: ({ children }: any) => {
+        const processedChildren = React.Children.map(children, (child, index) => {
+          if (typeof child === 'string') {
+            return processMarkdownLinks(child);
+          }
+          return child;
+        });
+
+        return (
+          <li style={{
+            fontSize: '1.5rem',       // 24px
+            lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+            fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+            fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+            letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+            color: designTokens.colors.grey800,
+            marginBottom: designTokens.spacing.xs,
+          }}>
+            {processedChildren}
+          </li>
+        );
+      },
+      number: ({ children }: any) => {
+        const processedChildren = React.Children.map(children, (child, index) => {
+          if (typeof child === 'string') {
+            return processMarkdownLinks(child);
+          }
+          return child;
+        });
+
+        return (
+          <li style={{
+            fontSize: '1.5rem',       // 24px
+            lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+            fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+            fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+            letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+            color: designTokens.colors.grey800,
+            marginBottom: designTokens.spacing.xs,
+          }}>
+            {processedChildren}
+          </li>
+        );
+      },
+    },
+    marks: {
+      strong: ({ children }: any) => (
+        <strong style={{ fontWeight: 600 }}>{children}</strong>
+      ),
+      em: ({ children }: any) => (
+        <em style={{ fontStyle: 'italic' }}>{children}</em>
+      ),
+    },
+    link: ({ value, children }: any) => (
+      <Link
+        href={value.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+          textDecoration: 'none',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          border: `1px solid ${designTokens.colors.grey800}`,
+          borderRadius: '4px',
+          padding: '0 4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          verticalAlign: 'baseline',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
+      >
+        <span>{children}</span>
+        <svg 
+          width="12" 
+          height="12" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2"
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M7 17L17 7M17 7H7M17 7V17" />
+        </svg>
+      </Link>
+    ),
+  };
+
+  // Мобильная вертикальная компоновка
+  if (isMobile) {
+    return (
+      <div style={{
+        marginBottom: designTokens.spacing.xl,
+      }}>
+        {/* Facts блок на мобилке */}
+        {showFacts && factsData && (
+          <div style={{ marginBottom: designTokens.spacing.l }}>
+            <InlineFactsBlock 
+              client={factsData.client} 
+              year={factsData.year} 
+              role={factsData.role}
+              links={linksData}
+            />
+          </div>
+        )}
+
+        {/* Текстовый контент на мобилке */}
+        <div style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+        }}>
+          <PortableText 
+            value={cleanBlockContent(text)} 
+            components={portableTextComponents}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Десктопная grid компоновка
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1.20fr 0.6fr 1.10fr 1.10fr', // Facts, пустая, текст, текст
+      gap: designTokens.spacing.l,
+      marginBottom: designTokens.spacing.xl,
+    }}>
+      {/* Колонка 1: Facts (только если showFacts = true) */}
+      <div>
+        {showFacts && factsData && (
+          <InlineFactsBlock 
+            client={factsData.client} 
+            year={factsData.year} 
+            role={factsData.role}
+            links={linksData}
+          />
+        )}
+      </div>
+
+      {/* Колонка 2: Пустая */}
+      <div></div>
+
+      {/* Колонки 3-4: Текстовый контент */}
+      <div style={{ gridColumn: '3 / 5' }}>
+        <div style={{
+          fontSize: '1.5rem',       // 24px
+          lineHeight: '1.11',       // 26.64px межстрочного для 24px шрифта
+          fontFamily: designTokens.textStyles.modalCaseText.fontFamily,
+          fontWeight: designTokens.textStyles.modalCaseText.fontWeight,
+          letterSpacing: designTokens.textStyles.modalCaseText.letterSpacing,
+          color: designTokens.colors.grey800,
+        }}>
+          <PortableText 
+            value={cleanBlockContent(text)} 
+            components={portableTextComponents}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -466,6 +1360,7 @@ function ImageBlock({ image }: { image: { asset: { url: string }; alt?: string }
     <div style={{
       marginBottom: designTokens.spacing.xl,
       overflow: 'hidden',
+      borderRadius: '16px',
     }}>
       <Image
         src={image.asset.url}
@@ -478,6 +1373,91 @@ function ImageBlock({ image }: { image: { asset: { url: string }; alt?: string }
           display: 'block',
         }}
       />
+    </div>
+  );
+}
+
+// Компонент для заблюренных изображений с tooltip
+function BlurredImageBlock({ image, tooltipText }: { 
+  image: { asset: { url: string }; alt?: string }; 
+  tooltipText?: string 
+}) {
+  const [showTooltip, setShowTooltip] = React.useState(false);
+  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMobile && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePos({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      style={{
+        marginBottom: designTokens.spacing.xl,
+        overflow: 'hidden',
+        position: 'relative',
+        cursor: 'pointer',
+        borderRadius: '16px',
+      }}
+      onMouseEnter={!isMobile ? () => setShowTooltip(true) : undefined}
+      onMouseLeave={!isMobile ? () => setShowTooltip(false) : undefined}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+    >
+      <Image
+        src={image.asset.url}
+        alt={image.alt || 'Case study image (NDA protected)'}
+        width={800}
+        height={600}
+        style={{
+          width: '100%',
+          height: 'auto',
+          display: 'block',
+        }}
+      />
+      
+      {/* Tooltip */}
+      <div style={{
+        position: 'absolute',
+        left: isMobile ? '50%' : mousePos.x + 10,
+        top: isMobile ? '50%' : mousePos.y - 10,
+        transform: isMobile ? 'translate(-50%, -50%)' : 'translateY(-100%)',
+        backgroundColor: '#000000',
+        color: '#ffffff',
+        padding: '12px',
+        borderRadius: '12px',
+        width: isMobile ? '300px' : '400px',
+        fontSize: '0.875rem',     // 14px
+        lineHeight: '1.286',      // 18px межстрочного для 14px шрифта
+        fontFamily: designTokens.textStyles.body1.fontFamily,
+        fontWeight: 500,
+        zIndex: 10,
+        pointerEvents: 'none',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+        opacity: (isMobile || showTooltip) && tooltipText ? 1 : 0,
+        visibility: (isMobile || showTooltip) && tooltipText ? 'visible' : 'hidden',
+        transition: 'opacity 0.2s ease, visibility 0.2s ease',
+        whiteSpace: 'normal',
+      }}>
+        {tooltipText || ''}
+      </div>
     </div>
   );
 }
@@ -499,6 +1479,7 @@ function VideoBlock({ video, alt, poster }: {
       width: '100%',
       overflow: 'hidden',
       backgroundColor: designTokens.colors.grey500,
+      borderRadius: '16px',
     }}>
       <video
         src={video.asset.url}
@@ -538,8 +1519,12 @@ function renderContentBlock(block: ContentBlock, index: number) {
       return <TestimonialCallout key={index} text={block.text} author={block.author} authorTitle={block.authorTitle} />;
     case 'textSection':
       return <TextSection key={index} heading={block.heading} text={block.text} />;
+    case 'paragraphBlock':
+      return <ParagraphBlock key={index} text={block.text} />;
     case 'imageBlock':
       return <ImageBlock key={index} image={block.image} />;
+    case 'blurredImageBlock':
+      return <BlurredImageBlock key={index} image={block.image} tooltipText={block.tooltipText} />;
     case 'videoBlock':
       // Проверяем, что у videoBlock есть video данные
       if (!block.video) {
@@ -551,7 +1536,80 @@ function renderContentBlock(block: ContentBlock, index: number) {
   }
 }
 
-export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
+export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
+  // Определяем мобилку
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Находим Facts блок для использования с первым TextSection или ParagraphBlock
+  const factsBlock = caseStudy.content?.find(block => block._type === 'factsBlock');
+  const factsData = factsBlock ? {
+    client: (factsBlock as any).client,
+    year: (factsBlock as any).year,
+    role: (factsBlock as any).role,
+  } : undefined;
+
+  // Находим ВСЕ Link блоки для отображения под фактами
+  const linkBlocks = caseStudy.content?.filter(block => block._type === 'linkBlock') || [];
+  const linksData = linkBlocks.map(block => ({
+    text: (block as any).text,
+    url: (block as any).url,
+  }));
+
+  // Счетчик для TextSection и ParagraphBlock блоков
+  let textBlockCount = 0;
+
+  const renderContentBlockWithGrid = (block: ContentBlock, index: number) => {
+    if (block._type === 'textSection') {
+      textBlockCount++;
+      const isFirstTextBlock = textBlockCount === 1;
+      
+      return (
+        <TextSectionWithGrid
+          key={index}
+          heading={(block as any).heading}
+          text={(block as any).text}
+          showFacts={isFirstTextBlock && !!factsData}
+          factsData={factsData}
+          linksData={isFirstTextBlock ? linksData : undefined}
+          isMobile={isMobile}
+        />
+      );
+    } else if (block._type === 'paragraphBlock') {
+      textBlockCount++;
+      const isFirstTextBlock = textBlockCount === 1;
+      
+      return (
+        <ParagraphBlockWithGrid
+          key={index}
+          text={(block as any).text}
+          showFacts={isFirstTextBlock && !!factsData}
+          factsData={factsData}
+          linksData={isFirstTextBlock ? linksData : undefined}
+          isMobile={isMobile}
+        />
+      );
+    } else if (block._type === 'factsBlock') {
+      // Не рендерим отдельный Facts блок, он уже встроен в первый TextSection или ParagraphBlock
+      return null;
+    } else if (block._type === 'linkBlock') {
+      // Не рендерим отдельный Link блок, он уже встроен в первый TextSection или ParagraphBlock под фактами
+      return null;
+    } else {
+      // Рендерим все остальные блоки как обычно
+      return renderContentBlock(block, index);
+    }
+  };
+
   return (
     <div 
       style={{
@@ -561,21 +1619,66 @@ export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
         letterSpacing: designTokens.textStyles.body1.letterSpacing,
         lineHeight: designTokens.textStyles.body1.lineHeight,
         color: designTokens.colors.grey800,
+        position: 'relative',
       }}
     >
+      {/* Кнопка закрытия в правом верхнем углу */}
+      <button
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          top: '24px',
+          right: '24px',
+          width: isMobile ? '32px' : '48px',
+          height: isMobile ? '32px' : '48px',
+          borderRadius: '50%',
+          border: isMobile ? '1px solid rgba(0, 0, 0, 0.4)' : 'none',
+          backgroundColor: isMobile ? designTokens.colors.white : 'rgba(0, 0, 0, 0.1)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001,
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (isMobile) {
+            e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+          } else {
+            e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (isMobile) {
+            e.currentTarget.style.backgroundColor = designTokens.colors.white;
+          } else {
+            e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+          }
+        }}
+      >
+        <span style={{ 
+          fontSize: isMobile ? '18px' : '24px', 
+          color: designTokens.colors.black 
+        }}>×</span>
+      </button>
+
       <h1 style={{ 
-        ...designTokens.textStyles.h1,
+        ...designTokens.textStyles.modalCaseTitle,
         color: designTokens.colors.black,
-        marginBottom: designTokens.spacing.m,
+        marginBottom: '2rem', // 32px
         marginTop: 0,
+        textAlign: 'left',
       }}>
         {caseStudy.title}
       </h1>
 
-      {/* Рендерим весь контент из CMS */}
+      {/* Cover Video/Image */}
+      <CoverMedia caseStudy={caseStudy} />
+
+      {/* Рендерим весь контент из CMS с новой логикой */}
       {caseStudy.content && caseStudy.content.length > 0 && (
         <div>
-          {caseStudy.content.map((block, index) => renderContentBlock(block, index))}
+          {caseStudy.content.map((block, index) => renderContentBlockWithGrid(block, index))}
         </div>
       )}
 
@@ -590,6 +1693,9 @@ export function CaseStudyModal({ caseStudy }: CaseStudyModalProps) {
           No content available
         </p>
       )}
+
+      {/* Пустой спейсер в конце кейса */}
+      <div style={{ height: '12vh' }} />
     </div>
   );
 } 

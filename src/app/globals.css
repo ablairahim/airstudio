@@ -81,6 +81,11 @@ html {
   scroll-padding-top: 120px; /* Offset for fixed navbar */
 }
 
+/* Disable smooth scrolling when modal is open */
+html.modal-open {
+  scroll-behavior: auto;
+}
+
 html,
 body {
   max-width: 100vw;
@@ -91,6 +96,13 @@ body {
 body {
   color: var(--color-black);
   background: var(--color-white);
+  /* Предотвращаем мигание контента при загрузке */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+body.hydrated {
+  opacity: 1;
 }
 
 a {
@@ -189,4 +201,48 @@ a {
 ::selection {
   background: var(--color-light-green);
   color: var(--color-black);
+}
+
+/* Loading screen styles - prevent content flash */
+.loading-container {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.loading-container.loaded {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===================
+   SANITY STUDIO FIXES
+   =================== */
+   
+/* Изоляция Studio от наших глобальных стилей */
+body:has([data-ui="NextStudioLayout"]) {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: auto !important;
+  opacity: 1 !important; /* Отключаем фейд-ин анимацию для Studio */
+  background: white !important;
+}
+
+/* Отключаем наши глобальные стили внутри Studio */
+[data-ui="NextStudioLayout"] * {
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+}
+
+/* Убираем наши custom scrollbar стили внутри Studio */
+[data-ui="NextStudioLayout"] ::-webkit-scrollbar {
+  width: auto !important;
+}
+
+[data-ui="NextStudioLayout"] ::-webkit-scrollbar-track {
+  background: auto !important;
+}
+
+[data-ui="NextStudioLayout"] ::-webkit-scrollbar-thumb {
+  background: auto !important;
 }

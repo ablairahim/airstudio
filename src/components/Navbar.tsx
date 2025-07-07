@@ -29,6 +29,7 @@ export function Navbar() {
     tags: ['ux-ui-design', 'experiment', 'ai'],
     title: 'Test Case Study',
     summary: 'This is a comprehensive test case study to verify all content types render correctly.',
+    order: 1,
     cover: undefined,
     link: {
       text: 'View Live Project',
@@ -121,34 +122,30 @@ export function Navbar() {
 
   return (
     <>
-      {/* Centered Navbar with logo inside */}
+      {/* Навбар всегда показывается */}
       <nav
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
+          position: 'static', // Убираем sticky позицию
           width: '100%',
           height: '60px', // Фиксированная высота
           padding: designTokens.spacing.m,
-          backgroundColor: designTokens.colors.grey100,
-          borderBottom: `1px solid rgba(0, 0, 0, 0.4)`,
+          backgroundColor: designTokens.colors.black, // Черный фон
+          // borderBottom: `1px solid rgba(255, 255, 255, 0.4)`, // Убираем дивайдер
           boxShadow: 'none', // Явно убираем любые тени
           display: 'flex',
           alignItems: 'center',
           zIndex: 1000,
         }}
       >
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {!isModalOpen ? (
-            // Обычное состояние - логотип слева, ссылки и кнопка справа
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {/* Обычное состояние - логотип слева, ссылки и кнопка справа */}
             <div
               style={{
                 display: 'flex',
@@ -156,23 +153,29 @@ export function Navbar() {
                 justifyContent: 'space-between',
                 width: '100%',
                 height: '100%',
-                opacity: isModalOpen ? 0 : 1,
               }}
             >
               {/* AirStudio Logo - left side */}
-              <div style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                flex: '0 0 auto',
-              }}>
+              <a 
+                href="#hero"
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: '0 0 auto',
+                  textDecoration: 'none',
+                }}
+              >
                 <Image 
                   src="/img/Logo_SVG-Black.svg" 
                   alt="AirStudio Logo" 
                   width={97} 
                   height={21}
                   priority
+                  style={{ 
+                    filter: 'brightness(0) invert(1)', // Более точная белая инверсия
+                  }}
                 />
-              </div>
+              </a>
 
               {/* Navigation links and button - right side */}
               <div style={{
@@ -195,7 +198,7 @@ export function Navbar() {
                         fontWeight: designTokens.textStyles.tagLink.fontWeight,
                         fontSize: designTokens.textStyles.tagLink.fontSize,
                         letterSpacing: designTokens.textStyles.tagLink.letterSpacing,
-                        color: designTokens.colors.black,
+                        color: designTokens.colors.white, // Белый цвет ссылок
                         paddingInline: designTokens.spacing.l,
                         paddingBlock: designTokens.spacing.s,
                         textDecoration: 'none',
@@ -209,123 +212,51 @@ export function Navbar() {
                   ))}
                 </div>
 
-                <button
-                  onClick={toggleModal}
+                <a
+                  href="#footer"
                   style={{
                     fontFamily: designTokens.textStyles.button.fontFamily,
                     fontWeight: designTokens.textStyles.button.fontWeight,
                     fontSize: designTokens.textStyles.button.fontSize,
                     letterSpacing: designTokens.textStyles.button.letterSpacing,
-                    backgroundColor: designTokens.colors.black,
-                    color: designTokens.colors.white,
-                    borderRadius: '0',
-                    border: 'none',
+                    backgroundColor: designTokens.colors.green, // Зеленый фон
+                    color: designTokens.colors.black, // Черный текст
+                    borderRadius: '4px', // Как у case studies
+                    border: `1px solid ${designTokens.colors.green}`, // Граница как у case studies
                     cursor: 'pointer',
-
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    // gap: designTokens.spacing.xs, // Убираем gap так как нет иконки
+                    padding: '0 4px', // Паддинги как у case studies
                     whiteSpace: 'nowrap',
                     flex: '0 0 auto',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = designTokens.colors.grey100;
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = designTokens.colors.green;
                   }}
                 >
-                  Let's talk
-                </button>
+                  <span>Let's connect</span>
+                </a>
               </div>
             </div>
-          ) : (
-            // Slug состояние - логотип слева, заголовок и крестик справа
-            <div 
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: '100%',
-                height: '100%',
-                opacity: isModalOpen ? 1 : 0,
-              }}
-            >
-              {/* AirStudio Logo - left side */}
-              <div style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                flex: '0 0 auto',
-              }}>
-                <Image 
-                  src="/img/Logo_SVG-Black.svg" 
-                  alt="AirStudio Logo" 
-                  width={97} 
-                  height={21}
-                  priority
-                />
-              </div>
-
-              {/* Title and close button - right side */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: designTokens.spacing.l,
-              }}>
-                <h3 
-                  style={{
-                    fontFamily: designTokens.textStyles.h3.fontFamily,
-                    fontSize: designTokens.textStyles.h3.fontSize,
-                    fontWeight: designTokens.textStyles.h3.fontWeight,
-                    letterSpacing: designTokens.textStyles.h3.letterSpacing,
-                    color: designTokens.colors.black,
-                    margin: 0,
-                  }}
-                >
-                  Case Study
-                </h3>
-                
-                <button
-                  onClick={toggleModal}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <span style={{ fontSize: '18px', color: designTokens.colors.black }}>×</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      {/* Затемнение фона */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачное затемнение
-          zIndex: 998, // Ниже модала, но выше контента
-          opacity: isModalOpen ? 1 : 0,
-          visibility: isModalOpen ? 'visible' : 'hidden',
-          transition: 'opacity 0.3s ease-out, visibility 0.3s ease-out',
-          pointerEvents: isModalOpen ? 'auto' : 'none',
-        }}
-        onClick={isModalOpen ? toggleModal : undefined}
-      />
+          </div>
+        </nav>
 
       {/* Отдельная модалка - появляется снизу вверх */}
       <div
-        onClick={isModalOpen ? toggleModal : undefined}
         style={{
           position: 'fixed',
-          top: '60px', // Вплотную под навбаром (высота навбара)
-          right: 0, // Вплотную к правому краю
+          top: 0, // Теперь от самого верха экрана
+          left: 0, // Теперь от левого края
+          right: 0, // До правого края
           bottom: 0,
-          width: isLargeScreen ? '55%' : '100%', // Полная ширина на мобилке
-          zIndex: 999, // Выше черного оверлея
+          width: '100%', // Полная ширина на всех экранах
+          zIndex: 999,
           pointerEvents: isModalOpen ? 'auto' : 'none',
           transform: isModalOpen ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out',
@@ -338,54 +269,63 @@ export function Navbar() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: designTokens.colors.white,
-              padding: `${designTokens.spacing.l} ${designTokens.spacing.l} 0`, // Верхний и боковые паддинги
               width: '100%',
               height: '100%',
               overflow: 'auto', // Включаем скролл
               overflowX: 'hidden', // Скрываем горизонтальный скролл
               WebkitOverflowScrolling: 'touch', // Улучшаем скролл на iOS
+              display: 'flex',
+              justifyContent: 'center',
+              paddingBottom: designTokens.spacing.xxxl, // Нижний паддинг для скролла
             }}
           >
-            {/* Динамический контент из CMS */}
-            {loading ? (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '50%',
-                color: designTokens.colors.grey500,
-              }}>
-                Loading...
-              </div>
-            ) : error ? (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '50%',
-                color: designTokens.colors.grey500,
-              }}>
-                Ошибка загрузки данных
-              </div>
-            ) : displayCaseStudy ? (
-              <CaseStudyModal caseStudy={displayCaseStudy} />
-            ) : (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '50%',
-                color: designTokens.colors.grey500,
-                textAlign: 'center',
-              }}>
-                <div>
-                  <p>Пока нет кейсов</p>
-                  <p>Добавьте новый кейс в <a href="/studio" style={{ color: designTokens.colors.black }}>Sanity Studio</a></p>
+            {/* Контейнер для контента с ограниченной шириной */}
+            <div style={{
+              maxWidth: isLargeScreen ? '65vw' : '100%',
+              width: '100%',
+              padding: `${designTokens.spacing.xxxl} ${designTokens.spacing.l} 0`,
+            }}>
+              {/* Динамический контент из CMS */}
+              {loading ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '50%',
+                  color: designTokens.colors.grey500,
+                }}>
+                  Loading...
                 </div>
-              </div>
-            )}
+              ) : error ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '50%',
+                  color: designTokens.colors.grey500,
+                }}>
+                  Ошибка загрузки данных
+                </div>
+              ) : displayCaseStudy ? (
+                <CaseStudyModal caseStudy={displayCaseStudy} onClose={toggleModal} />
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '50%',
+                  color: designTokens.colors.grey500,
+                  textAlign: 'center',
+                }}>
+                  <div>
+                    <p>Пока нет кейсов</p>
+                    <p>Добавьте новый кейс в <a href="/studio" style={{ color: designTokens.colors.black }}>Sanity Studio</a></p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
     </>
   );
 } 
