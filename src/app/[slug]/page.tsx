@@ -4,11 +4,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-interface PageProps {
-  params: { slug: string };
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const caseStudy = await getCaseStudyBySlug(params.slug);
   if (!caseStudy) return {};
 
@@ -39,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function CaseStudyPage({ params }: PageProps) {
+export default async function CaseStudyPage({ params }: { params: { slug: string } }) {
   const data = await getCaseStudyBySlug(params.slug);
   if (!data) notFound();
 
