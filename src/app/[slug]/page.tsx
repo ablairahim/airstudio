@@ -44,8 +44,6 @@ export default async function CaseStudyPage({ params }: any) {
     headline: data.title,
     description: data.summary,
     image: data.cover?.asset.url,
-    datePublished: data._createdAt,
-    dateModified: data._updatedAt,
     author: {
       "@type": "Person",
       name: "Ablai Rakhimbekov",
