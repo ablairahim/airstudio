@@ -9,6 +9,7 @@ import { useLoading } from '../contexts/LoadingContext'
 
 export default function Hero() {
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const isMobile = !isLargeScreen;
   const [currentTime, setCurrentTime] = useState('--:--');
   const [cardWidth, setCardWidth] = useState(240);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -240,7 +241,34 @@ export default function Hero() {
     };
   }, [animatingCards.length, cardWidth]);
 
+  // Freeze hero videos on mobile: seek to middle frame and pause
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!isMobile) return; // Run only on mobile screens
 
+    videoRefs.current.forEach((video) => {
+      if (!video) return;
+
+      const freeze = () => {
+        try {
+          const mid = (video.duration || 0) / 2;
+          if (!isNaN(mid) && mid > 0) {
+            video.currentTime = mid;
+          }
+        } catch (e) {
+          // ignore seek errors
+        } finally {
+          video.pause();
+        }
+      };
+
+      if (video.readyState >= 1) {
+        freeze();
+      } else {
+        video.addEventListener('loadedmetadata', freeze, { once: true });
+      }
+    });
+  }, [isMobile]);
 
   // Анимация кнопки Scroll
   useEffect(() => {
@@ -404,8 +432,8 @@ export default function Hero() {
                   ref={(el) => {
                     if (el) videoRefs.current[index] = el;
                   }}
-                  autoPlay
-                  loop
+                  autoPlay={isLargeScreen}
+                  loop={isLargeScreen}
                   muted
                   playsInline
                   preload="metadata"
