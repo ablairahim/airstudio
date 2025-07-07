@@ -22,9 +22,9 @@ export default function Hero() {
   const { isFirstLoad } = useLoading();
   
   // PNG изображения для карточек (7 штук)
-  const imageFiles = [
+  const mediaFiles = [
     "2-1.png",
-    "2.png",
+    "judo_work.mp4",
     "3.png",
     "4.png",
     "qoll.png",
@@ -42,10 +42,11 @@ export default function Hero() {
     designTokens.colors.beige,
   ];
 
-  const animatingCards = imageFiles.map((file, idx) => ({
+  const animatingCards = mediaFiles.map((file, idx) => ({
     id: idx + 1,
     color: colors[idx % colors.length],
     content: file,
+    type: file.endsWith('.mp4') ? 'video' : 'image',
   }));
 
   useEffect(() => {
@@ -429,16 +430,33 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              <img
-                src={`/img/Hero_Videos/${card.content}`}
-                alt="Content"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '20px',
-                }}
-              />
+              {card.type === 'video' ? (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '20px',
+                  }}
+                  src={`/img/Hero_Videos/${card.content}`}
+                />
+              ) : (
+                <img
+                  src={`/img/Hero_Videos/${card.content}`}
+                  alt="Content"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '20px',
+                  }}
+                />
+              )}
             </div>
           );
         })}
