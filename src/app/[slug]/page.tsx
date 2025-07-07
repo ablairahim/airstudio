@@ -19,8 +19,6 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       url: `https://airstudio.work/${params.slug}`,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
       type: "article",
-      publishedTime: caseStudy._createdAt,
-      modifiedTime: caseStudy._updatedAt,
       authors: ["Ablai Rakhimbekov"],
     },
     twitter: {
