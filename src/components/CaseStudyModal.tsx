@@ -1590,8 +1590,8 @@ export function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
           </p>
         )}
 
-        {/* Пустой спейсер в конце кейса */}
-        <div style={{ height: '12vh' }} />
+        {/* Минимальный нижний отступ */}
+        <div style={{ height: isMobile ? '24px' : '48px' }} />
       </div>
       </div>
       {/* Fixed Close pill for mobile */}
