@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { designTokens } from '@/lib/design-tokens'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { gsap } from 'gsap'
 import SplitType from 'split-type'
 import { useLoading } from '../contexts/LoadingContext'
@@ -42,13 +42,43 @@ export default function Hero() {
     designTokens.colors.beige,
   ];
 
-  const animatingCards = mediaFiles.map((file, idx) => ({
-    id: idx + 1,
-    color: colors[idx % colors.length],
-    content: file,
-    // Treat both .mp4 and .webm as video formats
-    type: file.endsWith('.mp4') || file.endsWith('.webm') ? 'video' : 'image',
-  }));
+  // Detect browser support for WebM video
+  const [supportsWebm, setSupportsWebm] = useState(true);
+  useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+
+    try {
+      const testVideo = document.createElement('video');
+      const canPlay = testVideo.canPlayType('video/webm');
+      setSupportsWebm(canPlay !== '');
+    } catch {
+      // Fall back to "false" if any error
+      setSupportsWebm(false);
+    }
+  }, []);
+
+  // Helper: pick a random png from existing images for fallback
+  const imagePool = mediaFiles.filter((f) => f.endsWith('.png'));
+
+  const getRandomImage = () => imagePool[Math.floor(Math.random() * imagePool.length)] || '3.png';
+
+  // Build card definitions (re-evaluates when support flag changes)
+  const animatingCards = useMemo(() => {
+    return mediaFiles.map((file, idx) => {
+      const isVideoFormat = file.endsWith('.mp4') || file.endsWith('.webm');
+
+      // Decide whether to use video or image based on support
+      const useVideo = isVideoFormat && supportsWebm;
+
+      return {
+        id: idx + 1,
+        color: colors[idx % colors.length],
+        content: useVideo ? file : (isVideoFormat ? getRandomImage() : file),
+        type: useVideo ? 'video' : 'image',
+      };
+    });
+  }, [supportsWebm]);
 
   useEffect(() => {
     const checkScreenSize = () => {
