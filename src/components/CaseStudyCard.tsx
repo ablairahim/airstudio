@@ -44,10 +44,11 @@ export function CaseStudyCard({ caseStudy }: CaseStudyCardProps) {
         {caseStudy.cover && (
           <div className="aspect-video overflow-hidden rounded-lg bg-gray-100">
             <Image
-              src={urlFor(caseStudy.cover).width(800).height(450).url()}
+              src={urlFor(caseStudy.cover).width(1200).height(675).url()}
               alt={caseStudy.cover.alt || caseStudy.title}
-              width={800}
-              height={450}
+              width={1200}
+              height={675}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="w-full h-full object-cover"
             />
           </div>

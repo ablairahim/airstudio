@@ -22,7 +22,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sanity": "^3.67.1",
-    "split-type": "^0.3.4"
+    "split-type": "^0.3.4",
+    "web-vitals": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
