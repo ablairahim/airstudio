@@ -46,7 +46,8 @@ export default function Hero() {
     id: idx + 1,
     color: colors[idx % colors.length],
     content: file,
-    type: file.endsWith('.mp4') ? 'video' : 'image',
+    // Treat both .mp4 and .webm as video formats
+    type: file.endsWith('.mp4') || file.endsWith('.webm') ? 'video' : 'image',
   }));
 
   useEffect(() => {
@@ -455,7 +456,7 @@ export default function Hero() {
                 />
               ) : (
                 <img
-                  src={`/img/Hero_Videos/${card.type === 'video' ? card.content.replace(/\.webm$/, '.png') : card.content}`}
+                  src={`/img/Hero_Videos/${card.content.replace(/\.(webm|mp4)$/, '.png')}`}
                   alt="Content"
                   style={{
                     width: '100%',
