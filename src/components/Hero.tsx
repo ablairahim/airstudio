@@ -25,7 +25,7 @@ export default function Hero() {
   const mediaFiles = [
     "3.png",
     "sveti.png",
-    "qoll.png",
+    "Cent_1.png",
     "qoll.png",
     "judo_work.webm",
     "5.webm",
