@@ -21,7 +21,7 @@ export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
   const { isFirstLoad } = useLoading();
   
-  // Контент строго из папки Hero_Videos (7 файлов)
+  // Полный список исходных медиа-файлов (видео пометим, но будем заменять на картинки)
   const mediaFiles = [
     "3.png",
     "4.png",
@@ -42,43 +42,25 @@ export default function Hero() {
     designTokens.colors.beige,
   ];
 
-  // Detect browser support for WebM video
-  const [supportsWebm, setSupportsWebm] = useState(true);
-  useEffect(() => {
-    // Only run on client
-    if (typeof window === 'undefined') return;
-
-    try {
-      const testVideo = document.createElement('video');
-      const canPlay = testVideo.canPlayType('video/webm');
-      setSupportsWebm(canPlay !== '');
-    } catch {
-      // Fall back to "false" if any error
-      setSupportsWebm(false);
-    }
-  }, []);
-
-  // Helper: pick a random png from existing images for fallback
+  // Используем только PNG-картинки; если элемент — видео, подставляем случайную картинку,
+  // чтобы никогда не было пустой карточки.
   const imagePool = mediaFiles.filter((f) => f.endsWith('.png'));
 
   const getRandomImage = () => imagePool[Math.floor(Math.random() * imagePool.length)] || '3.png';
 
-  // Build card definitions (re-evaluates when support flag changes)
   const animatingCards = useMemo(() => {
     return mediaFiles.map((file, idx) => {
       const isVideoFormat = file.endsWith('.mp4') || file.endsWith('.webm');
-
-      // Decide whether to use video or image based on support
-      const useVideo = isVideoFormat && supportsWebm;
+      const finalImage = isVideoFormat ? getRandomImage() : file;
 
       return {
         id: idx + 1,
         color: colors[idx % colors.length],
-        content: useVideo ? file : (isVideoFormat ? getRandomImage() : file),
-        type: useVideo ? 'video' : 'image',
+        content: finalImage,
+        type: 'image' as const,
       };
     });
-  }, [supportsWebm]);
+  }, []);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -461,46 +443,21 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              {card.type === 'video' ? (
-                <video
-                  autoPlay={isLargeScreen}
-                  loop={isLargeScreen}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  onLoadedMetadata={(e) => {
-                    const v = e.currentTarget as HTMLVideoElement;
-                    // Для десктопа: пропускаем первые 0.1 секунды, чтобы избежать черного кадра
-                    if (isLargeScreen) {
-                      try {
-                        v.currentTime = Math.min(0.1, v.duration || 0);
-                      } catch {/* ignore */}
-                    } else {
-                      // Мобилка: фиксируем середину и ставим паузу
-                      v.currentTime = v.duration / 2;
-                      v.pause();
-                    }
-                  }}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                  }}
-                  src={`/img/Hero_Videos/${card.content}`}
-                />
-              ) : (
-                <img
-                  src={`/img/Hero_Videos/${card.content.replace(/\.(webm|mp4)$/, '.png')}`}
-                  alt="Content"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '20px',
-                  }}
-                />
-              )}
+              <img
+                src={`/img/Hero_Videos/${card.content}`}
+                alt="Card media"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '20px',
+                }}
+                onError={(e) => {
+                  // Safety: если вдруг путь битый — подставим случайную картинку
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.src = `/img/Hero_Videos/${getRandomImage()}`;
+                }}
+              />
             </div>
           );
         })}
