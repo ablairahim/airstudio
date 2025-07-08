@@ -42,22 +42,33 @@ export default function Hero() {
     designTokens.colors.beige,
   ];
 
-  // Используем только PNG-картинки; если элемент — видео, подставляем случайную картинку,
-  // чтобы никогда не было пустой карточки.
+  // Пулам картинок для постеров и fallback
   const imagePool = mediaFiles.filter((f) => f.endsWith('.png'));
 
   const getRandomImage = () => imagePool[Math.floor(Math.random() * imagePool.length)] || '3.png';
 
+  // Проверяем, поддерживает ли браузер WebM
+  const [supportsWebm, setSupportsWebm] = useState(true);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const vid = document.createElement('video');
+      setSupportsWebm(vid.canPlayType('video/webm') !== '');
+    } catch {
+      setSupportsWebm(false);
+    }
+  }, []);
+
+  // Формируем карточки
   const animatingCards = useMemo(() => {
     return mediaFiles.map((file, idx) => {
-      const isVideoFormat = file.endsWith('.mp4') || file.endsWith('.webm');
-      const finalImage = isVideoFormat ? getRandomImage() : file;
-
+      const isVideo = file.endsWith('.mp4') || file.endsWith('.webm');
       return {
         id: idx + 1,
         color: colors[idx % colors.length],
-        content: finalImage,
-        type: 'image' as const,
+        content: file,
+        isVideo,
+        poster: getRandomImage(),
       };
     });
   }, []);
@@ -443,21 +454,45 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              <img
-                src={`/img/Hero_Videos/${card.content}`}
-                alt="Card media"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '20px',
-                }}
-                onError={(e) => {
-                  // Safety: если вдруг путь битый — подставим случайную картинку
-                  const target = e.currentTarget as HTMLImageElement;
-                  target.src = `/img/Hero_Videos/${getRandomImage()}`;
-                }}
-              />
+              {card.isVideo && supportsWebm && isLargeScreen ? (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  poster={`/img/Hero_Videos/${card.poster}`}
+                  onLoadedMetadata={(e) => {
+                    const v = e.currentTarget as HTMLVideoElement;
+                    try {
+                      v.currentTime = 0.1; // пропускаем черный первый кадр
+                    } catch {/* ignore */}
+                  }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '20px',
+                  }}
+                >
+                  <source src={`/img/Hero_Videos/${card.content}`} type="video/webm" />
+                </video>
+              ) : (
+                <img
+                  src={`/img/Hero_Videos/${card.isVideo ? card.poster : card.content}`}
+                  alt="Card media"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '20px',
+                  }}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.src = `/img/Hero_Videos/${getRandomImage()}`;
+                  }}
+                />
+              )}
             </div>
           );
         })}
