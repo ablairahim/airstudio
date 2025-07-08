@@ -24,8 +24,8 @@ export default function Hero() {
   // Полный список исходных медиа-файлов (видео пометим, но будем заменять на картинки)
   const mediaFiles = [
     "3.png",
+    "sveti.png", // дублируем, чтобы после 3.png шла рабочая картинка
     "4.png",
-    "sveti.png",
     "qoll.png",
     "judo_work.webm",
     "5.webm",
