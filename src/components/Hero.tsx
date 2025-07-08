@@ -21,14 +21,14 @@ export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
   const { isFirstLoad } = useLoading();
   
-  // PNG изображения для карточек (7 штук)
+  // Контент строго из папки Hero_Videos (7 файлов)
   const mediaFiles = [
-    "2-1.png",
-    "judo_work.mp4",
     "3.png",
     "4.png",
-    "qoll.png",
     "sveti.png",
+    "qoll.png",
+    "judo_work.webm",
+    "5.webm",
     "HFF.png",
   ];
 
@@ -430,13 +430,21 @@ export default function Hero() {
               }}
             >
               {/* Видео или изображение */}
-              {card.type === 'video' && isLargeScreen ? (
+              {card.type === 'video' ? (
                 <video
-                  autoPlay
-                  loop
+                  autoPlay={isLargeScreen}
+                  loop={isLargeScreen}
                   muted
                   playsInline
                   preload="metadata"
+                  onLoadedMetadata={(e) => {
+                    if (!isLargeScreen) {
+                      const v = e.currentTarget as HTMLVideoElement;
+                      // После загрузки ставим на середину и ставим паузу
+                      v.currentTime = v.duration / 2;
+                      v.pause();
+                    }
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -447,7 +455,7 @@ export default function Hero() {
                 />
               ) : (
                 <img
-                  src={`/img/Hero_Videos/${card.type === 'video' ? card.content.replace('.mp4', '.png') : card.content}`}
+                  src={`/img/Hero_Videos/${card.type === 'video' ? card.content.replace(/\.webm$/, '.png') : card.content}`}
                   alt="Content"
                   style={{
                     width: '100%',
