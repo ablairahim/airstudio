@@ -469,9 +469,14 @@ export default function Hero() {
                   playsInline
                   preload="metadata"
                   onLoadedMetadata={(e) => {
-                    if (!isLargeScreen) {
-                      const v = e.currentTarget as HTMLVideoElement;
-                      // После загрузки ставим на середину и ставим паузу
+                    const v = e.currentTarget as HTMLVideoElement;
+                    // Для десктопа: пропускаем первые 0.1 секунды, чтобы избежать черного кадра
+                    if (isLargeScreen) {
+                      try {
+                        v.currentTime = Math.min(0.1, v.duration || 0);
+                      } catch {/* ignore */}
+                    } else {
+                      // Мобилка: фиксируем середину и ставим паузу
                       v.currentTime = v.duration / 2;
                       v.pause();
                     }
