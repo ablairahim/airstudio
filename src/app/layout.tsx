@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: "/img/ablai.png",
+        url: "/img/OG.png",
         width: 1200,
         height: 630,
         alt: "AirStudio - UX/UI Design Services",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AirStudio | UX/UI Design & Product Development",
     description: "Professional UX/UI design services and product development solutions",
-    images: ["/img/ablai.png"],
+    images: ["/img/OG.png"],
   },
 };
 
